@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { OpenAI } from 'openai'
 
 export async function POST(req: NextRequest) {
+    if (!process.env.OPENAI_API_KEY) {
+        return NextResponse.json({ error: 'API key is missing' }, { status: 400 })
+    }
+
     const openai = new OpenAI({
         apiKey: process.env.OPENAI_API_KEY,
     })
