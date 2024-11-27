@@ -61,6 +61,7 @@ export async function POST(req: NextRequest) {
             max_tokens: 400,
             temperature: 0.7,
         })
+        console.log(completion)
         const adCopyContent = completion.choices[0].message.content
 
         if (!adCopyContent) {
