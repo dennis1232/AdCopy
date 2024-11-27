@@ -1,0 +1,20 @@
+[
+    {
+        "id": 1,
+        "name": "Template A",
+        "fields": [
+            "Product Name",
+            "Feature",
+            "Benefit"
+        ]
+    },
+    {
+        "id": 2,
+        "name": "Template B",
+        "fields": [
+            "Service Name",
+            "Target Audience",
+            "Key Message"
+        ]
+    }
+]
