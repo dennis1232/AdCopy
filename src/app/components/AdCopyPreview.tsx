@@ -28,7 +28,7 @@ const AdCopyPreview: React.FC<AdCopyPreviewProps> = ({ imageUrl, content, onSave
         try {
             await axios.post(APIEndpoints.sendToTelegram, { imageUrl, message: content })
             showSuccess(ToastMessages.adCopySentToTelegram)
-        } catch (error) {
+        } catch {
             showError(ToastMessages.adCopySentToChannelFailed)
         }
         setSendLoading(false)
