@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import InputField from '../components/InputField'
 import TextAreaField from '../components/TextAreaField'
 import axios from 'axios'
@@ -7,6 +7,7 @@ import AdCopyPreview from '../components/AdCopyPreview'
 import Button from '../components/Button'
 import useToast from '@/hooks/useToast'
 import { ToastMessages, APIEndpoints } from '@/utils/constants'
+import { Modal } from '../components'
 
 interface FormData {
     description: string
@@ -40,9 +41,12 @@ const initialFormData: FormData = {
 
 const Form: React.FC = () => {
     const [formData, setFormData] = useState<FormData>(initialFormData)
+    const [scrapeInput, setScrapeInput] = useState<string>()
     const [generatedTemplate, setGeneratedTemplate] = useState<string>('')
     const [generatingLoading, setGeneratingLoading] = useState<boolean>(false)
     const [saveLoading, setSaveLoading] = useState<boolean>(false)
+    const [scrapingLoading, setScrapingLoading] = useState<boolean>(false)
+    const [scrapeModalOpen, setScrapeModalOpen] = useState<boolean>(false)
 
     const { showSuccess, showError } = useToast()
 
@@ -106,10 +110,54 @@ const Form: React.FC = () => {
         setSaveLoading(false)
     }
 
+    const scrapeProduct = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setScrapingLoading(true)
+        try {
+            const res = await axios.post(APIEndpoints.scrapeProduct, {
+                productUrl: scrapeInput,
+            })
+            console.log(res)
+            setFormData({ ...res.data, affiliateLink: scrapeInput })
+
+            showSuccess(ToastMessages.adCopySaved)
+        } catch (err) {
+            console.error(err)
+
+            showError(ToastMessages.adCopySaveFailed)
+        }
+        setScrapingLoading(false)
+        setScrapeModalOpen(false)
+    }
+
     return (
         <div className="min-h-screen bg-gray-50 py-8">
+            <Modal isOpen={scrapeModalOpen} onClose={() => setScrapeModalOpen(false)}>
+                <form onSubmit={scrapeProduct}>
+                    <InputField
+                        label="Scrape data by url"
+                        name="scrapeUrl"
+                        value={scrapeInput || ''}
+                        onChange={(e) => setScrapeInput(e.target.value)}
+                        placeholder="Enter URL and preffered affiliate link"
+                    />
+                    <Button className="w-full" type="submit" isLoading={scrapingLoading}>
+                        Scrape
+                    </Button>
+                </form>
+            </Modal>
             <div className="max-w-6xl mx-auto bg-white p-6 rounded shadow">
+                <Button
+                    className="w-full"
+                    size="large"
+                    type="submit"
+                    isLoading={scrapingLoading}
+                    onClick={() => setScrapeModalOpen(true)}
+                >
+                    Scrape By Url
+                </Button>
                 <h1 className="text-2xl font-bold mb-4">Ad Copy Generator</h1>
+
                 <form onSubmit={handleSubmit}>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                         <div className="md:col-span-4">

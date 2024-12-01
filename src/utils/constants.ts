@@ -32,6 +32,8 @@ export const ToastMessages = {
     adCopySaveFailed: 'Failed to save ad copy. Please try again.',
     adCopySentToTelegram: 'Ad copy sent to the channel',
     adCopySentToChannelFailed: 'Failed to send Ad copy to the channel',
+    adCopyRemoved: 'Ad copy deleted',
+    adCopyRemovedFailed: 'Failed to delete Ad copy',
     // Add more messages as needed
 }
 
@@ -42,6 +44,8 @@ export const APIEndpoints = {
     sendToTelegram: '/api/sendToTelegram',
     fetchAdCopies: '/api/adCopies',
     manageChannels: '/api/channels',
+    deleteAdCopy: '/api/deleteAdCopy',
+    scrapeProduct: '/api/scrapeProduct',
     // Add more endpoints as needed
 }
 

@@ -5,6 +5,7 @@ import axios from 'axios'
 import AdCopyPreview from '../components/AdCopyPreview'
 import useToast from '@/hooks/useToast'
 import { APIEndpoints, ToastMessages } from '@/utils/constants'
+import { Spinner } from '../components'
 
 interface AdCopy {
     _id: string
@@ -15,12 +16,17 @@ interface AdCopy {
 
 const AdCopiesPage: React.FC = () => {
     const [adCopies, setAdCopies] = useState<AdCopy[]>([])
+    const [loadingAdCopies, setIsLoadingAdCopies] = useState<boolean>(true)
+    const [deleteLoading, setDeleteLoading] = useState<boolean>(false)
+
     const { showSuccess, showError } = useToast()
 
     const fetchAdCopies = async () => {
         try {
+            setIsLoadingAdCopies(true)
             const response = await axios.get(APIEndpoints.fetchAdCopies)
             setAdCopies(response.data)
+            setIsLoadingAdCopies(false)
         } catch (error) {
             console.error('Error fetching ad copies:', error)
         }
@@ -49,6 +55,23 @@ const AdCopiesPage: React.FC = () => {
         }
     }
 
+    const onDeleteAdCopy = async (id: string) => {
+        setDeleteLoading(true)
+        try {
+            await axios.post(APIEndpoints.deleteAdCopy, { adCopyId: id })
+            showSuccess(ToastMessages.adCopyRemoved)
+        } catch {
+            showError(ToastMessages.adCopyRemovedFailed)
+        }
+        setDeleteLoading(false)
+    }
+
+    if (loadingAdCopies)
+        return (
+            <div className="min-h-screen">
+                <Spinner />
+            </div>
+        )
     return (
         <div className="min-h-screen bg-gray-50 py-8">
             <div className="max-w-6xl mx-auto p-6">
@@ -61,11 +84,15 @@ const AdCopiesPage: React.FC = () => {
                             content={adCopy.content}
                             onEdit={() => handleSaveEditedCopy(adCopy._id)}
                             onChange={(e) => updateAdCopyContent(e, adCopy._id)}
+                            onDelete={() => onDeleteAdCopy(adCopy._id)}
                             date={adCopy.date}
+                            loading={deleteLoading}
                         />
                     ))
                 ) : (
-                    <p>You have not generated any ad copies yet.</p>
+                    <div>
+                        <p>You have not generated any ad copies yet.</p>
+                    </div>
                 )}
             </div>
         </div>

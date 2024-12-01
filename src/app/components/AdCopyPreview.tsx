@@ -19,16 +19,18 @@ interface AdCopyPreviewProps {
     date?: string
     loading?: boolean
     onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
+    onDelete?: () => void
     onEdit?: () => void
 }
 
 const AdCopyPreview: React.FC<AdCopyPreviewProps> = ({
     imageUrl,
     content,
+    date,
     onSave,
     onEdit,
     onChange,
-    date,
+    onDelete,
     loading = false,
 }) => {
     const [sendLoading, setSendLoading] = useState<boolean>(false)
@@ -101,6 +103,11 @@ const AdCopyPreview: React.FC<AdCopyPreviewProps> = ({
                         <Button onClick={onSend} isLoading={sendLoading}>
                             Send to channel
                         </Button>
+                        {!onSave && (
+                            <Button variant="danger" onClick={onDelete} isLoading={loading}>
+                                Delete
+                            </Button>
+                        )}
                     </div>
                 </div>
             </div>
