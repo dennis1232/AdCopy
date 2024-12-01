@@ -1,5 +1,6 @@
 import { Toaster } from 'react-hot-toast'
 import Navbar from './components/NavBar'
+
 import './globals.css'
 
 export const metadata = {
@@ -7,13 +8,15 @@ export const metadata = {
     description: 'Generate engaging ad copies effortlessly',
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="en">
             <body>
-                <Navbar />
-                <main>{children}</main>
-                <Toaster />
+                <main className="mt-12">
+                    <Navbar />
+                    {children}
+                    <Toaster />
+                </main>
             </body>
         </html>
     )

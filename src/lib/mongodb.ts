@@ -1,35 +1,24 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { MongoClient } from 'mongodb'
 
-import mongoose from 'mongoose'
+const uri = process.env.MONGODB_URI
 
-const MONGODB_URI = process.env.MONGODB_URI
-
-if (!MONGODB_URI) {
+if (!uri) {
     throw new Error('Please define the MONGODB_URI environment variable in .env.local')
 }
 
-let cached = (global as any).mongoose
+let client: MongoClient
+let clientPromise: Promise<MongoClient>
 
-if (!cached) {
-    cached = (global as any).mongoose = { conn: null, promise: null }
+declare global {
+    // eslint-disable-next-line no-var
+    var _mongoClientPromise: Promise<MongoClient>
 }
 
-async function dbConnect() {
-    if (cached.conn) {
-        return cached.conn
-    }
-
-    if (!cached.promise) {
-        const options = {
-            bufferCommands: false,
-        }
-
-        cached.promise = mongoose.connect(MONGODB_URI!, options).then((mongoose) => {
-            return mongoose
-        })
-    }
-    cached.conn = await cached.promise
-    return cached.conn
+if (!global._mongoClientPromise) {
+    client = new MongoClient(uri)
+    global._mongoClientPromise = client.connect()
 }
+// eslint-disable-next-line no-var, prefer-const
+clientPromise = global._mongoClientPromise
 
-export default dbConnect
+export default clientPromise

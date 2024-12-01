@@ -1,7 +1,7 @@
 // app/api/generateAdCopy/route.ts
 
 import { NextRequest, NextResponse } from 'next/server'
-import dbConnect from '@/lib/mongodb'
+import dbConnect from '@/lib/dbConnect'
 import AdCopy, { IAdCopy } from '@/models/AdCopy'
 
 export async function POST(req: NextRequest) {

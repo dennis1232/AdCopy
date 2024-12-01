@@ -1,10 +1,18 @@
 // app/page.tsx
 
 import React from 'react'
+import { getServerSession } from 'next-auth'
+import { redirect } from 'next/navigation'
+import { authOptions } from '@/lib/authOptions'
 
-export default function HomePage() {
+export default async function HomePage() {
+    const session = await getServerSession(authOptions)
+
+    if (!session) {
+        redirect('/auth/login')
+    }
     return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="  flex items-center justify-center">
             <div className="text-center p-6">
                 <h1 className="text-4xl font-bold mb-4">Welcome to Ad Copy Generator</h1>
                 <p className="text-lg mb-6">Create engaging ad copies effortlessly.</p>
