@@ -1,12 +1,14 @@
 // components/AdCopyPreview.tsx
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
 import ReactMarkdown from 'react-markdown'
 import rehypeSanitize from 'rehype-sanitize'
 import axios from 'axios'
 import Button from './Button'
+import { APIEndpoints, ToastMessages } from '@/utils/constants'
+import useToast from '@/hooks/useToast'
 
 interface AdCopyPreviewProps {
     imageUrl?: string
@@ -14,11 +16,22 @@ interface AdCopyPreviewProps {
     onSave?: () => void
     showSaveButton?: boolean
     date?: string
+    loading?: boolean
 }
 
-const AdCopyPreview: React.FC<AdCopyPreviewProps> = ({ imageUrl, content, onSave, date }) => {
+const AdCopyPreview: React.FC<AdCopyPreviewProps> = ({ imageUrl, content, onSave, date, loading = false }) => {
+    const [sendLoading, setSendLoading] = useState<boolean>(false)
+    const { showSuccess, showError } = useToast()
+
     const onSend = async () => {
-        await axios.post('/api/sendToTelegram', { imageUrl, message: content })
+        setSendLoading(true)
+        try {
+            await axios.post(APIEndpoints.sendToTelegram, { imageUrl, message: content })
+            showSuccess(ToastMessages.adCopySentToTelegram)
+        } catch (error) {
+            showError(ToastMessages.adCopySentToChannelFailed)
+        }
+        setSendLoading(false)
     }
 
     return (
@@ -46,12 +59,14 @@ const AdCopyPreview: React.FC<AdCopyPreviewProps> = ({ imageUrl, content, onSave
                     )}
                     <div className="flex gap-2 flex-col">
                         {onSave && (
-                            <Button variant="outline" onClick={onSave}>
+                            <Button variant="outline" onClick={onSave} isLoading={loading}>
                                 Save
                             </Button>
                         )}
 
-                        <Button onClick={onSend}>Send to channel</Button>
+                        <Button onClick={onSend} isLoading={sendLoading}>
+                            Send to channel
+                        </Button>
                     </div>
                 </div>
             </div>

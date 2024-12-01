@@ -5,6 +5,8 @@ import TextAreaField from '../components/TextAreaField'
 import axios from 'axios'
 import AdCopyPreview from '../components/AdCopyPreview'
 import Button from '../components/Button'
+import useToast from '@/hooks/useToast'
+import { ToastMessages, APIEndpoints } from '@/utils/constants'
 
 interface FormData {
     description: string
@@ -39,7 +41,10 @@ const initialFormData: FormData = {
 const Form: React.FC = () => {
     const [formData, setFormData] = useState<FormData>(initialFormData)
     const [generatedTemplate, setGeneratedTemplate] = useState<string>('')
-    const [loading, setLoading] = useState<boolean>(false)
+    const [generatingLoading, setGeneratingLoading] = useState<boolean>(false)
+    const [saveLoading, setSaveLoading] = useState<boolean>(false)
+
+    const { showSuccess, showError } = useToast()
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setFormData({
@@ -50,7 +55,7 @@ const Form: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        setLoading(true)
+        setGeneratingLoading(true)
 
         // Generate the prompt for the GPT API
         const prompt = `
@@ -74,28 +79,31 @@ const Form: React.FC = () => {
       `
 
         try {
-            const generatedContent = await axios.post('/api/generateAdCopy', {
+            const generatedContent = await axios.post(APIEndpoints.generateAdCopy, {
                 prompt,
             })
-
+            showSuccess(ToastMessages.adCopyGenerated)
             setGeneratedTemplate(generatedContent.data.result)
-
-            // const res = await axios.post('/api/sendToTelegram', {
-            //     prompt: generatedContent.data.result,
-            //     imageUrl: formData.image,
-            // })
         } catch (error) {
             console.error('Error:', error)
+            showError(ToastMessages.adCopyGenerationFailed)
         }
 
-        setLoading(false)
+        setGeneratingLoading(false)
     }
 
     const handleSave = async (generatedContent: string) => {
-        await axios.post('/api/saveToDb', {
-            content: generatedContent,
-            imageUrl: formData.image,
-        })
+        setSaveLoading(true)
+        try {
+            await axios.post(APIEndpoints.saveAdCopy, {
+                content: generatedContent,
+                imageUrl: formData.image,
+            })
+            showSuccess(ToastMessages.adCopySaved)
+        } catch {
+            showError(ToastMessages.adCopySaveFailed)
+        }
+        setSaveLoading(false)
     }
 
     return (
@@ -191,9 +199,9 @@ const Form: React.FC = () => {
                             placeholder="Enter brand name"
                         />
                     </div>
-                    <div className="mt-6">
-                        <Button type="submit" disabled={loading}>
-                            {loading ? 'Generating...' : 'Generate Ad Copy'}
+                    <div className="mt-6 w-full">
+                        <Button className="w-full" size="large" type="submit" isLoading={generatingLoading}>
+                            Generate Ad Copy
                         </Button>
                     </div>
                 </form>
@@ -202,6 +210,7 @@ const Form: React.FC = () => {
                     <div className="mt-8">
                         <h2 className="text-xl font-semibold mb-4">Generated Ad Copy:</h2>
                         <AdCopyPreview
+                            loading={saveLoading}
                             imageUrl={formData.image}
                             content={generatedTemplate}
                             onSave={() => handleSave(generatedTemplate)}

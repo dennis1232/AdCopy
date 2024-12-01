@@ -1,3 +1,4 @@
+import { Toaster } from 'react-hot-toast'
 import Navbar from './components/NavBar'
 import './globals.css'
 
@@ -12,6 +13,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <body>
                 <Navbar />
                 <main>{children}</main>
+                <Toaster />
             </body>
         </html>
     )
