@@ -80,11 +80,10 @@ const Form: React.FC = () => {
 
             setGeneratedTemplate(generatedContent.data.result)
 
-            const res = await axios.post('/api/sendToTelegram', {
-                prompt: generatedContent,
-                imageUrl: formData.image,
-            })
-            console.log(res)
+            // const res = await axios.post('/api/sendToTelegram', {
+            //     prompt: generatedContent.data.result,
+            //     imageUrl: formData.image,
+            // })
         } catch (error) {
             console.error('Error:', error)
         }
