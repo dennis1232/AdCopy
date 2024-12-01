@@ -32,12 +32,22 @@ export async function POST(req: NextRequest) {
         // Launch Puppeteer
         const browser = await puppeteer.launch({
             headless: true,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--single-process',
+                '--no-zygote',
+            ],
         })
 
         const page = await browser.newPage()
         await page.setViewport({
             width: 1300,
             height: 600,
+        })
+        await page.setExtraHTTPHeaders({
+            'Accept-Language': 'en-US,en;q=0.9',
         })
 
         await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)')
