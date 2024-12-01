@@ -74,10 +74,8 @@ export const authOptions: NextAuthOptions = {
             // Attach token data to the session
             if (token) {
                 session.user = {
-                    id: token.id,
                     email: token.email,
                     name: token.name,
-                    accessToken: token.accessToken, // Include accessToken for API use
                 }
             }
 
