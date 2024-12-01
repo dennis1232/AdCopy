@@ -69,14 +69,31 @@ export const authOptions: NextAuthOptions = {
     },
     callbacks: {
         async session({ session, token }) {
-            // Attach the user ID to the session object
-            if (token && session.user) {
-                session.user.id = token.sub
+            console.log('Session Callback:', { session, token })
+
+            // Attach token data to the session
+            if (token) {
+                session.user = {
+                    id: token.id,
+                    email: token.email,
+                    name: token.name,
+                    accessToken: token.accessToken, // Include accessToken for API use
+                }
             }
+
             return session
         },
+
         async jwt({ token, user, account }) {
-            if (account && user) {
+            console.log('JWT Callback:', { token, user, account })
+            if (user) {
+                token.id = user.id // Add user ID
+                token.email = user.email // Add email
+                token.name = user.name // Add name
+            }
+
+            // If using an OAuth provider, add the access token
+            if (account?.provider === 'google') {
                 token.accessToken = account.access_token
             }
             return token

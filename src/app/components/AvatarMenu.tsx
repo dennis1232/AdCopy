@@ -2,13 +2,14 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
-import { useSession, signIn, signOut } from 'next-auth/react'
+import { signIn, signOut } from 'next-auth/react'
 import { FaUserCircle } from 'react-icons/fa'
 import { MdKeyboardArrowDown } from 'react-icons/md'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import Button from './Button'
 import Image from 'next/image'
+import { useSession } from 'next-auth/react'
 
 interface AvatarMenuProps {
     mobile?: boolean
@@ -17,8 +18,9 @@ interface AvatarMenuProps {
 
 const AvatarMenu: React.FC<AvatarMenuProps> = ({ mobile = false, toggleNav }) => {
     const [menuOpen, setMenuOpen] = useState(false)
-    // const { data: session } = useSession()
-    const session = {}
+    const { data: session, status } = useSession()
+    console.log(session, status)
+
     const menuRef = useRef<HTMLDivElement>(null)
 
     const toggleMenu = () => {
