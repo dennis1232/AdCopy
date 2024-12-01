@@ -5,7 +5,7 @@ import dbConnect from '@/lib/mongodb'
 import AdCopy, { IAdCopy } from '@/models/AdCopy'
 
 export async function POST(req: NextRequest) {
-    const { content, imageUrl } = await req.json()
+    const { content, imageUrl, adCopyId } = await req.json()
 
     if (!content) {
         return NextResponse.json({ error: 'Failed to save adCopy' }, { status: 500 })
@@ -13,6 +13,11 @@ export async function POST(req: NextRequest) {
 
     try {
         await dbConnect()
+        if (adCopyId) {
+            const adCopy = AdCopy.findOneAndUpdate({ _id: adCopyId }, { content, imageUrl })
+            console.log(adCopy)
+            return
+        }
 
         // Save the ad copy to MongoDB
         const newAdCopy: IAdCopy = new AdCopy({

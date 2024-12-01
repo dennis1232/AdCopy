@@ -6,9 +6,10 @@ interface TextAreaFieldProps {
     value: string
     onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
     placeholder?: string
+    rows?: number
 }
 
-const TextAreaField: React.FC<TextAreaFieldProps> = ({ label, name, value, onChange, placeholder }) => {
+const TextAreaField: React.FC<TextAreaFieldProps> = ({ label, name, value, onChange, placeholder, rows = 2 }) => {
     return (
         <div className="mb-4">
             <label className="block text-gray-700 font-semibold mb-1" htmlFor={name}>
@@ -21,7 +22,7 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({ label, name, value, onCha
                 value={value}
                 onChange={onChange}
                 placeholder={placeholder}
-                rows={2}
+                rows={rows}
             ></textarea>
         </div>
     )

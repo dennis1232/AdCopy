@@ -9,6 +9,7 @@ import axios from 'axios'
 import Button from './Button'
 import { APIEndpoints, ToastMessages } from '@/utils/constants'
 import useToast from '@/hooks/useToast'
+import TextAreaField from './TextAreaField'
 
 interface AdCopyPreviewProps {
     imageUrl?: string
@@ -17,11 +18,22 @@ interface AdCopyPreviewProps {
     showSaveButton?: boolean
     date?: string
     loading?: boolean
+    onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
+    onEdit?: () => void
 }
 
-const AdCopyPreview: React.FC<AdCopyPreviewProps> = ({ imageUrl, content, onSave, date, loading = false }) => {
+const AdCopyPreview: React.FC<AdCopyPreviewProps> = ({
+    imageUrl,
+    content,
+    onSave,
+    onEdit,
+    onChange,
+    date,
+    loading = false,
+}) => {
     const [sendLoading, setSendLoading] = useState<boolean>(false)
     const { showSuccess, showError } = useToast()
+    const [isEdit, setIsEdit] = useState<boolean>(false)
 
     const onSend = async () => {
         setSendLoading(true)
@@ -50,8 +62,19 @@ const AdCopyPreview: React.FC<AdCopyPreviewProps> = ({ imageUrl, content, onSave
                 )}
                 <div className="md:w-2/3 text-right flex flex-col" dir="rtl">
                     <div className="prose prose-lg">
-                        <ReactMarkdown rehypePlugins={[rehypeSanitize]}>{content}</ReactMarkdown>
+                        {onChange && isEdit ? (
+                            <TextAreaField
+                                rows={6}
+                                onChange={onChange}
+                                value={content}
+                                label="edit section"
+                                name="editible-content"
+                            />
+                        ) : (
+                            <ReactMarkdown rehypePlugins={[rehypeSanitize]}>{content}</ReactMarkdown>
+                        )}
                     </div>
+
                     {date && (
                         <p className="text-sm text-gray-500 mt-2">
                             נוצר בתאריך: {new Date(date).toLocaleString('he-IL')}
@@ -63,7 +86,18 @@ const AdCopyPreview: React.FC<AdCopyPreviewProps> = ({ imageUrl, content, onSave
                                 Save
                             </Button>
                         )}
-
+                        {onEdit && (
+                            <Button
+                                variant="outline"
+                                onClick={() => {
+                                    setIsEdit(!isEdit)
+                                    if (isEdit) onEdit()
+                                }}
+                                isLoading={loading}
+                            >
+                                {isEdit ? ' Save Edit' : 'Edit'}
+                            </Button>
+                        )}
                         <Button onClick={onSend} isLoading={sendLoading}>
                             Send to channel
                         </Button>

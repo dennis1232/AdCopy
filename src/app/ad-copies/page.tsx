@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import AdCopyPreview from '../components/AdCopyPreview'
+import useToast from '@/hooks/useToast'
+import { APIEndpoints, ToastMessages } from '@/utils/constants'
 
 interface AdCopy {
     _id: string
@@ -13,19 +15,39 @@ interface AdCopy {
 
 const AdCopiesPage: React.FC = () => {
     const [adCopies, setAdCopies] = useState<AdCopy[]>([])
+    const { showSuccess, showError } = useToast()
+
+    const fetchAdCopies = async () => {
+        try {
+            const response = await axios.get(APIEndpoints.fetchAdCopies)
+            setAdCopies(response.data)
+        } catch (error) {
+            console.error('Error fetching ad copies:', error)
+        }
+    }
 
     useEffect(() => {
-        const fetchAdCopies = async () => {
-            try {
-                const response = await axios.get('/api/adCopies')
-                setAdCopies(response.data)
-            } catch (error) {
-                console.error('Error fetching ad copies:', error)
-            }
-        }
-
         fetchAdCopies()
     }, [])
+
+    const updateAdCopyContent = (e: React.ChangeEvent<HTMLTextAreaElement>, adCopyId: string) => {
+        setAdCopies((prevAdCopies) =>
+            prevAdCopies.map((ad) => (ad._id === adCopyId ? { ...ad, content: e.target.value } : ad))
+        )
+    }
+
+    const handleSaveEditedCopy = async (adCopyId: string) => {
+        try {
+            const adCopy = adCopies.find((ad) => ad._id === adCopyId)
+            await axios.post(APIEndpoints.saveAdCopy, {
+                ...adCopy,
+            })
+
+            showSuccess(ToastMessages.adCopySaved)
+        } catch {
+            showError(ToastMessages.adCopySaveFailed)
+        }
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 py-8">
@@ -37,6 +59,8 @@ const AdCopiesPage: React.FC = () => {
                             key={adCopy._id}
                             imageUrl={adCopy.imageUrl}
                             content={adCopy.content}
+                            onEdit={() => handleSaveEditedCopy(adCopy._id)}
+                            onChange={(e) => updateAdCopyContent(e, adCopy._id)}
                             date={adCopy.date}
                         />
                     ))
