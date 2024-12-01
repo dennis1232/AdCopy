@@ -40,9 +40,7 @@ export async function POST(req: NextRequest) {
             height: 600,
         })
 
-        await page.setUserAgent(
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
-        )
+        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)')
 
         // Navigate to the product page
         console.log('Navigating to the product page...')
@@ -56,7 +54,7 @@ export async function POST(req: NextRequest) {
         console.log('Extracting product data...')
         const productData: ProductData = await page.evaluate(() => {
             const description = document.querySelector('div.title--wrap--UUHae_g')?.textContent?.trim()
-            const image = document.querySelector('img.magnifier--image--EYYoSlr')?.textContent?.trim()
+            // const image = document.querySelector('img.magnifier--image--EYYoSlr')?.textContent?.trim()
             const price = document.querySelector('div.price--current--I3Zeidd')?.textContent?.trim()
             const originalPrice = document.querySelector('span.price--originalText--gxVO5_d')?.textContent?.trim()
             const discount = document.querySelector('span.price--discount--Y9uG2LK')?.textContent?.trim()
@@ -71,8 +69,15 @@ export async function POST(req: NextRequest) {
                 .querySelector('.specification--desc--Dxx6W0W span[data-spm-anchor-id]')
                 ?.textContent?.trim()
 
+            const images: string[] = []
+            document.querySelectorAll('img.magnifier--image--EYYoSlr').forEach((img) => {
+                if (img instanceof HTMLImageElement) {
+                    images.push(img.src)
+                }
+            })
+
             return {
-                image,
+                image: images[0],
                 description,
                 price,
                 originalPrice,
