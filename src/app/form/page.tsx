@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import InputField from '../components/InputField'
 import TextAreaField from '../components/TextAreaField'
 import axios from 'axios'
