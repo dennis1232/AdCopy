@@ -3,6 +3,8 @@
 
 import React, { useEffect } from 'react'
 import ReactDOM from 'react-dom'
+import Button from './Button'
+import { FaTimes } from 'react-icons/fa'
 
 interface ModalProps {
     isOpen: boolean
@@ -32,6 +34,9 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, footer 
             role="dialog"
         >
             <div className="bg-white rounded-lg overflow-hidden shadow-xl max-w-lg w-full">
+                <Button onClick={onClose}>
+                    <FaTimes size={24} />
+                </Button>
                 {title && (
                     <div className="px-6 py-4 border-b border-gray-200">
                         <h3 className="text-lg font-medium">{title}</h3>
