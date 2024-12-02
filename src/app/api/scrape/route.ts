@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
         executablePath:
             process.env.CHROME_EXECUTABLE_PATH ||
             (await chromium.executablePath(
-                'https://scrape-ads.s3.eu-north-1.amazonaws.com/chromium-v126.0.0-pack.tar'
+                'https://scrape-ads.s3.eu-north-1.amazonaws.com/chromium-v122.0.0-pack.tar'
             )),
         headless: true,
     })
