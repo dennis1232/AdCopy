@@ -7,23 +7,19 @@ chromium.setHeadlessMode = true
 chromium.setGraphicsMode = false
 
 export async function POST(req: NextRequest) {
+    await chromium.font('https://raw.githack.com/googlei18n/noto-emoji/master/fonts/NotoColorEmoji.ttf')
     const isLocal = !!process.env.CHROME_EXECUTABLE_PATH
     const { productUrl } = await req.json()
 
     if (!productUrl || !productUrl.startsWith('http')) {
         return Response.json({ error: 'Invalid or missing productUrl' }, { status: 400 })
     }
-    console.log(
-        'Chromium Path:',
-        process.env.CHROME_EXECUTABLE_PATH ||
-            (await chromium.executablePath('https://scrape-ads.s3.eu-north-1.amazonaws.com/chromium-v126.0.0-pack.tar'))
-    )
 
     const browser = await puppeteer.launch({
         args: isLocal
             ? puppeteer.defaultArgs()
             : [...chromium.args, '--hide-scrollbars', '--incognito', '--no-sandbox'],
-        defaultViewport: chromium.defaultViewport,
+        defaultViewport: { width: 800, height: 600 },
         executablePath:
             process.env.CHROME_EXECUTABLE_PATH ||
             (await chromium.executablePath(
@@ -33,7 +29,6 @@ export async function POST(req: NextRequest) {
     })
 
     const page = await browser.newPage()
-    // page.waitForSelector('div.title--wrap--UUHae_g', { timeout: 15000 })
     await page.goto(productUrl)
     const document = await page.content()
     const $ = cheerio.load(document)
