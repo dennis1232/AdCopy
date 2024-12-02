@@ -6,7 +6,7 @@ chromium.setHeadlessMode = true
 chromium.setGraphicsMode = false
 
 export async function POST(req: NextRequest) {
-    const isLocal = process.env.CHROME_EXECUTABLE_PATH
+    const isLocal = !!process.env.CHROME_EXECUTABLE_PATH
     const { productUrl } = await req.json()
 
     const browser = await puppeteer.launch({
