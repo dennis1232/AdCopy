@@ -114,7 +114,7 @@ const Form: React.FC = () => {
         e.preventDefault()
         setScrapingLoading(true)
         try {
-            const res = await axios.post(APIEndpoints.scrapeProduct, {
+            const res = await axios.post('/api/scrape', {
                 productUrl: scrapeInput,
             })
             console.log(res)
