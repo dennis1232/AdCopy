@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
             (await chromium.executablePath(
                 'https://scrape-ads.s3.eu-north-1.amazonaws.com/chromium-v126.0.0-pack.tar'
             )),
-        headless: chromium.headless,
+        headless: true,
     })
 
     const page = await browser.newPage()
