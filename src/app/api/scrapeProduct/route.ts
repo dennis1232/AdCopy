@@ -1,5 +1,7 @@
 // // src/app/api/scrapeProduct/route.ts
 
+import { NextRequest } from 'next/server'
+
 // import { NextRequest, NextResponse } from 'next/server'
 // // import puppeteer from 'puppeteer'
 
@@ -125,3 +127,4 @@
 //         )
 //     }
 // }
+export async function POST(req: NextRequest) {}
