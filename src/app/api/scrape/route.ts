@@ -36,21 +36,26 @@ export async function POST(req: NextRequest) {
     await page.goto(productUrl)
     const document = await page.content()
     const $ = cheerio.load(document)
+    const description = $('div.title--wrap--UUHae_g')?.text().trim()
     const price = $('div.price--current--I3Zeidd')?.text().trim()
     const originalPrice = $('span.price--originalText--gxVO5_d')?.text().trim()
     const discount = $('span.price--discount--Y9uG2LK')?.text().trim()
-    const starsRating = $('.reviewer--rating--xrWWFzx strong')?.text().trim()
+    const stars = $('.reviewer--rating--xrWWFzx strong')?.text().trim()
     const numberOfReviews = $('a.reviewer--reviews--cx7Zs_V')?.text().trim()
     const numberOfOrders = $('span.reviewer--sold--ytPeoEy')?.text().trim()
     const shipmentPrice = $('.dynamic-shipping-titleLayout strong')?.text().trim()
-
+    const shipmentEstimate = $('.dynamic-shipping-contentLayout strong')?.text().trim()
+    const image = $('img.magnifier--image--EYYoSlr').attr('src')
     await browser.close()
     return Response.json({
+        image,
         price,
+        description,
         originalPrice,
+        shipmentEstimate,
         discount,
         shipmentPrice,
-        starsRating,
+        stars,
         numberOfReviews,
         numberOfOrders,
     })

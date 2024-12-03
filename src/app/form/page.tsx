@@ -9,7 +9,7 @@ import useToast from '@/hooks/useToast'
 import { ToastMessages, APIEndpoints } from '@/utils/constants'
 import { Modal } from '../components'
 
-interface FormData {
+export interface FormData {
     description: string
     image: string
     price: string
@@ -62,29 +62,11 @@ const Form: React.FC = () => {
         setGeneratingLoading(true)
 
         // Generate the prompt for the GPT API
-        const prompt = `
-        Create an engaging ad copy for the following product in Hebrew, using HTML format, and include an HTML <a> tag for the affiliate link.
-      Telegram supports a limited set of HTML tags: <b>, <strong>, <i>, <em>, <u>, <ins>, <s>, <strike>, <del>, <a>, <code>, <pre>.
-      no ul or li tags 
-      html before the tags are not needed
-        Brand: ${formData.brand}
-        Description: ${formData.description}
-        Price: ${formData.price}
-        Original Price: ${formData.originalPrice}
-        Discount: ${formData.discount}
-        Rating: ${formData.stars} stars from ${formData.numberOfReviews} reviews
-        Number of Orders: ${formData.numberOfOrders}
-        Shipping: ${formData.shipmentPrice}, Estimated Delivery: ${formData.shipmentEstimate}
-        Affiliate Link: ${formData.affiliateLink}
-      
-        The ad copy should end with a call-to-action containing the affiliate link, using an HTML <a href="${formData.affiliateLink}"> ${formData.affiliateLink} </a>".
-        📲 הצטרפו לערוץ הטלגרם שלנו למבצעים חמים בטניס - https://t.me/+YSjL72WwEGlkNzk0
-        the links should be visible
-      `
 
         try {
             const generatedContent = await axios.post(APIEndpoints.generateAdCopy, {
-                prompt,
+                formData,
+                channel: 'wedding',
             })
             showSuccess(ToastMessages.adCopyGenerated)
             setGeneratedTemplate(generatedContent.data.result)

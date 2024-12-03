@@ -1,16 +1,16 @@
 // app/page.tsx
 
 import React from 'react'
-import { getServerSession } from 'next-auth'
-import { redirect } from 'next/navigation'
-import { authOptions } from '@/lib/authOptions'
+// import { getServerSession } from 'next-auth'
+// import { redirect } from 'next/navigation'
+// import { authOptions } from '@/lib/authOptions'
 
 export default async function HomePage() {
-    const session = await getServerSession(authOptions)
+    // const session = await getServerSession(authOptions)
 
-    if (!session) {
-        redirect('/auth/login')
-    }
+    // if (!session) {
+    //     redirect('/auth/login')
+    // }
     return (
         <div className="  flex items-center justify-center">
             <div className="text-center p-6">

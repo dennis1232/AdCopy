@@ -4,24 +4,49 @@
 import { NextRequest, NextResponse } from 'next/server'
 import axios from 'axios'
 
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN
-const TELEGRAM_CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID
+interface BotChannelConfig {
+    botToken: string | undefined // Tokens are read from environment variables and can be undefined
+    channelId: string | undefined // Same as above
+}
+
+export type BotChannelVariant = 'tennis' | 'wedding' | 'test'
+
+const botChannelMap: Record<BotChannelVariant, BotChannelConfig> = {
+    tennis: {
+        botToken: process.env.TELEGRAM_TENNIS_BOT_TOKEN,
+        channelId: process.env.TELEGRAM_TENNIS_CHANNEL_ID,
+    },
+    wedding: {
+        botToken: process.env.TELEGRAM_WEDDING_BOT_TOKEN,
+        channelId: process.env.TELEGRAM_WEDDING_CHANNEL_ID,
+    },
+    test: {
+        botToken: process.env.TELEGRAM_TENNIS_BOT_TOKEN,
+        channelId: process.env.TELEGRAM_TENNIS_CHANNEL_ID,
+    },
+}
 
 export async function POST(req: NextRequest) {
     try {
-        const { message, imageUrl } = await req.json()
+        const { message, imageUrl, channel } = await req.json()
 
-        // Parse the request body
+        if (!message) {
+            return NextResponse.json({ error: 'Message is required' }, { status: 400 })
+        }
 
-        // Log the received data for debugging purposes
-        console.log('Received data:', { message, imageUrl })
+        // Get bot token and channel ID based on the variant
+        const config = botChannelMap[channel as BotChannelVariant] || botChannelMap.test
+
+        if (!config.botToken || !config.channelId) {
+            return NextResponse.json({ error: 'Invalid configuration for the selected variant' }, { status: 500 })
+        }
 
         // Construct the Telegram API URL
-        const apiUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`
+        const apiUrl = `https://api.telegram.org/bot${config.botToken}`
 
         // Prepare the payload for the Telegram API
         const payload = {
-            chat_id: TELEGRAM_CHANNEL_ID,
+            chat_id: config.channelId,
             photo: imageUrl,
             caption: message,
             parse_mode: 'HTML', // Since you're using HTML formatting in your message
