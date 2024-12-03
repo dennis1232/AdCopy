@@ -40,7 +40,7 @@ const Navbar: React.FC = () => {
                             </span>
                         </Link>
                         {/* Additional Links */}
-                        <AvatarMenu />
+                        {/* <AvatarMenu /> */}
                     </div>
 
                     {/* Mobile Menu Button */}

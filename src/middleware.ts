@@ -9,6 +9,6 @@ export default withAuth({
     // },
 })
 
-export const config = {
-    matcher: ['/', '/ad-copies', '/form'], // Protect these routes
-}
+// export const config = {
+//     matcher: ['/', '/ad-copies', '/form'], // Protect these routes
+// }

@@ -11,10 +11,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     return (
         <html lang="en">
             <body>
-                <SessionProvider>
-                    <Navbar />
-                    <main className="mt-16">{children}</main>
-                </SessionProvider>
+                {/* <SessionProvider> */}
+                <Navbar />
+                <main className="mt-16">{children}</main>
+                {/* </SessionProvider> */}
                 <Toaster />
             </body>
         </html>

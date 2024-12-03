@@ -7,7 +7,6 @@ chromium.setHeadlessMode = true
 chromium.setGraphicsMode = false
 
 export async function POST(req: NextRequest) {
-    await chromium.font('https://raw.githack.com/googlei18n/noto-emoji/master/fonts/NotoColorEmoji.ttf')
     const isLocal = !!process.env.CHROME_EXECUTABLE_PATH
     const { productUrl } = await req.json()
 
@@ -20,23 +19,27 @@ export async function POST(req: NextRequest) {
             ? puppeteer.defaultArgs()
             : [...chromium.args, '--hide-scrollbars', '--incognito', '--no-sandbox'],
         defaultViewport: { width: 800, height: 600 },
-        executablePath:
-            process.env.CHROME_EXECUTABLE_PATH ||
-            (await chromium.executablePath(
-                'https://scrape-ads.s3.eu-north-1.amazonaws.com/chromium-v122.0.0-pack.tar'
-            )),
+        executablePath: process.env.CHROME_EXECUTABLE_PATH || (await chromium.executablePath()),
         headless: true,
     })
 
     const page = await browser.newPage()
-    await page.setUserAgent(
-        'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
-    )
+    const userAgents = [
+        'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Linux; Android 10; SM-G973F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36',
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1',
+    ]
+
+    const randomUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)'
+    await page.setUserAgent(randomUserAgent)
 
     await page.goto(productUrl)
     const document = await page.content()
+
     const $ = cheerio.load(document)
-    const description = $('div.title--wrap--UUHae_g')?.text().trim()
+
+    const description = $('.article-title')?.text().trim()
     const price = $('div.price--current--I3Zeidd')?.text().trim()
     const originalPrice = $('span.price--originalText--gxVO5_d')?.text().trim()
     const discount = $('span.price--discount--Y9uG2LK')?.text().trim()
@@ -46,6 +49,7 @@ export async function POST(req: NextRequest) {
     const shipmentPrice = $('.dynamic-shipping-titleLayout strong')?.text().trim()
     const shipmentEstimate = $('.dynamic-shipping-contentLayout strong')?.text().trim()
     const image = $('img.magnifier--image--EYYoSlr').attr('src')
+
     await browser.close()
     return Response.json({
         image,
