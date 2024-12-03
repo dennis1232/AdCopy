@@ -1,14 +1,12 @@
 'use client'
 
 import ProfileClient from './profileClient'
-import { useSession } from 'next-auth/react'
+// import { useSession } from 'next-auth/react'
 
 export default function ProfilePage() {
-    const { data: session } = useSession()
+    // const { data: session } = useSession()
 
-    if (!session) {
-        return <p>You need to log in to view this page.</p>
-    }
+    return <p>You need to log in to view this page.</p>
 
-    return <ProfileClient session={session} />
+    return <ProfileClient session={{}} />
 }

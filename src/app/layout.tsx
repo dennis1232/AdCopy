@@ -1,7 +1,7 @@
 import { Toaster } from 'react-hot-toast'
 import Navbar from './components/NavBar'
 import './globals.css'
-import SessionProvider from './components/SessionProvider'
+// import SessionProvider from './components/SessionProvider'
 export const metadata = {
     title: 'Ad Copy Generator',
     description: 'Generate engaging ad copies effortlessly',
