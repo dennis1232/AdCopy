@@ -34,6 +34,8 @@ export const ToastMessages = {
     adCopySentToChannelFailed: 'Failed to send Ad copy to the channel',
     adCopyRemoved: 'Ad copy deleted',
     adCopyRemovedFailed: 'Failed to delete Ad copy',
+    fetchAdCopiesFailed: 'Failed to fetch ad copies',
+    adCopyNotFound: 'Ad copy not found',
     // Add more messages as needed
 }
 

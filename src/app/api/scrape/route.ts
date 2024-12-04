@@ -32,16 +32,22 @@ export async function POST(req: NextRequest) {
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)',
     ]
 
-    const randomUserAgent = userAgents[0]
+    const randomUserAgent = userAgents[Math.floor(Math.random() * userAgents.length)]
 
     await page.setUserAgent(randomUserAgent)
+    await page.setExtraHTTPHeaders({
+        'Accept-Language': 'en-US,en;q=0.9',
+    })
 
     await page.goto(productUrl)
     const document = await page.content()
 
     const $ = cheerio.load(document)
+    if (document.includes('captcha') || document.includes('verify')) {
+        console.log('CAPTCHA detected!')
+    }
 
-    const description = $('.article-title')?.text().trim()
+    const description = $('div.title--wrap--UUHae_g')?.text().trim()
     const price = $('div.price--current--I3Zeidd')?.text().trim()
     const originalPrice = $('span.price--originalText--gxVO5_d')?.text().trim()
     const discount = $('span.price--discount--Y9uG2LK')?.text().trim()

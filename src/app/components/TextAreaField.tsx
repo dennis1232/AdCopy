@@ -1,4 +1,8 @@
+// components/TextAreaField.tsx
+'use client'
+
 import React from 'react'
+import TextField from '@mui/material/TextField'
 
 interface TextAreaFieldProps {
     label: string
@@ -7,24 +11,45 @@ interface TextAreaFieldProps {
     onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
     placeholder?: string
     rows?: number
+    fullWidth?: boolean
+    required?: boolean
+    disabled?: boolean
+    error?: boolean
+    helperText?: React.ReactNode
 }
 
-const TextAreaField: React.FC<TextAreaFieldProps> = ({ label, name, value, onChange, placeholder, rows = 2 }) => {
+const TextAreaField: React.FC<TextAreaFieldProps> = ({
+    label,
+    name,
+    value,
+    onChange,
+    placeholder,
+    rows = 2,
+    fullWidth = true,
+    required = false,
+    disabled = false,
+    error = false,
+    helperText,
+    ...rest
+}) => {
     return (
-        <div className="mb-4">
-            <label className="block text-gray-700 font-semibold mb-1" htmlFor={name}>
-                {label}
-            </label>
-            <textarea
-                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                id={name}
-                name={name}
-                value={value}
-                onChange={onChange}
-                placeholder={placeholder}
-                rows={rows}
-            ></textarea>
-        </div>
+        <TextField
+            label={label}
+            name={name}
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            fullWidth={fullWidth}
+            required={required}
+            disabled={disabled}
+            error={error}
+            helperText={helperText}
+            variant="outlined"
+            margin="normal"
+            multiline
+            rows={rows}
+            {...rest}
+        />
     )
 }
 

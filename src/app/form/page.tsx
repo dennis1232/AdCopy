@@ -1,28 +1,26 @@
+// app/components/Form.tsx
 'use client'
+
 import React, { useState } from 'react'
-import InputField from '../components/InputField'
-import TextAreaField from '../components/TextAreaField'
+import {
+    Box,
+    Button,
+    TextField,
+    Typography,
+    Grid,
+    MenuItem,
+    Select,
+    InputLabel,
+    FormControl,
+    CircularProgress,
+    Modal,
+    SelectChangeEvent,
+} from '@mui/material'
 import axios from 'axios'
-import AdCopyPreview from '../components/AdCopyPreview'
-import Button from '../components/Button'
+import AdCopyPreview from '@/app/components/AdCopyPreview'
 import useToast from '@/hooks/useToast'
 import { ToastMessages, APIEndpoints } from '@/utils/constants'
-import { Modal } from '../components'
-
-export interface FormData {
-    description: string
-    image: string
-    price: string
-    stars: string
-    numberOfReviews: string
-    numberOfOrders: string
-    shipmentPrice: string
-    shipmentEstimate: string
-    discount: string
-    originalPrice: string
-    brand: string
-    affiliateLink: string
-}
+import { CategoryOption, FormData } from '@/types'
 
 const initialFormData: FormData = {
     description: '',
@@ -37,11 +35,17 @@ const initialFormData: FormData = {
     originalPrice: '',
     brand: '',
     affiliateLink: '',
+    category: '',
 }
+
+const categoryOptions: CategoryOption[] = [
+    { label: 'Wedding', value: 'wedding' },
+    { label: 'Tennis', value: 'tennis' },
+]
 
 const Form: React.FC = () => {
     const [formData, setFormData] = useState<FormData>(initialFormData)
-    const [scrapeInput, setScrapeInput] = useState<string>()
+    const [scrapeInput, setScrapeInput] = useState<string>('')
     const [generatedTemplate, setGeneratedTemplate] = useState<string>('')
     const [generatingLoading, setGeneratingLoading] = useState<boolean>(false)
     const [saveLoading, setSaveLoading] = useState<boolean>(false)
@@ -51,25 +55,37 @@ const Form: React.FC = () => {
     const { showSuccess, showError } = useToast()
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value,
-        })
+        const { name, value } = e.target
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }))
+    }
+
+    const handleCategoryChange = (e: SelectChangeEvent<string>) => {
+        setFormData((prev) => ({
+            ...prev,
+            category: e.target.value as string,
+        }))
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+
+        if (!formData.category) {
+            showError('Please select a category.')
+            return
+        }
+
         setGeneratingLoading(true)
 
-        // Generate the prompt for the GPT API
-
         try {
-            const generatedContent = await axios.post(APIEndpoints.generateAdCopy, {
+            const response = await axios.post(APIEndpoints.generateAdCopy, {
                 formData,
-                channel: 'wedding',
+                channel: formData.category,
             })
             showSuccess(ToastMessages.adCopyGenerated)
-            setGeneratedTemplate(generatedContent.data.result)
+            setGeneratedTemplate(response.data.result)
         } catch (error) {
             console.error('Error:', error)
             showError(ToastMessages.adCopyGenerationFailed)
@@ -84,6 +100,7 @@ const Form: React.FC = () => {
             await axios.post(APIEndpoints.saveAdCopy, {
                 content: generatedContent,
                 imageUrl: formData.image,
+                category: formData.category,
             })
             showSuccess(ToastMessages.adCopySaved)
         } catch {
@@ -99,157 +116,258 @@ const Form: React.FC = () => {
             const res = await axios.post('/api/scrape', {
                 productUrl: scrapeInput,
             })
-            console.log(res)
-            setFormData({ ...res.data, affiliateLink: scrapeInput })
+            setFormData({ ...formData, ...res.data, affiliateLink: scrapeInput })
 
-            showSuccess(ToastMessages.adCopySaved)
+            showSuccess('Product data scraped successfully.')
         } catch (err) {
             console.error(err)
-
-            showError(ToastMessages.adCopySaveFailed)
+            showError('Failed to scrape product data.')
         }
         setScrapingLoading(false)
         setScrapeModalOpen(false)
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8">
-            <Modal isOpen={scrapeModalOpen} onClose={() => setScrapeModalOpen(false)}>
-                <form onSubmit={scrapeProduct}>
-                    <InputField
-                        label="Scrape data by url"
-                        name="scrapeUrl"
-                        value={scrapeInput || ''}
-                        onChange={(e) => setScrapeInput(e.target.value)}
-                        placeholder="Enter URL and preffered affiliate link"
-                    />
-                    <Button className="w-full" type="submit" isLoading={scrapingLoading}>
-                        Scrape
-                    </Button>
-                </form>
-            </Modal>
-            <div className="max-w-6xl mx-auto bg-white p-6 rounded shadow">
-                <Button
-                    className="w-full"
-                    size="large"
-                    type="submit"
-                    isLoading={scrapingLoading}
-                    onClick={() => setScrapeModalOpen(true)}
+        <Box sx={{ minHeight: '100vh', py: 4, bgcolor: 'background.default' }}>
+            {/* Scrape Modal */}
+            <Modal open={scrapeModalOpen} onClose={() => setScrapeModalOpen(false)}>
+                <Box
+                    component="form"
+                    onSubmit={scrapeProduct}
+                    sx={{
+                        bgcolor: 'background.paper',
+                        boxShadow: 24,
+                        p: 4,
+                        mx: 'auto',
+                        my: 'auto',
+                        maxWidth: 400,
+                        borderRadius: 1,
+                    }}
                 >
-                    Scrape By Url
-                </Button>
-                <h1 className="text-2xl font-bold mb-4">Ad Copy Generator</h1>
+                    <Typography variant="h6" gutterBottom>
+                        Scrape Data by URL
+                    </Typography>
+                    <TextField
+                        label="Product URL"
+                        name="scrapeUrl"
+                        value={scrapeInput}
+                        onChange={(e) => setScrapeInput(e.target.value)}
+                        placeholder="Enter product URL"
+                        fullWidth
+                        required
+                        margin="normal"
+                    />
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        type="submit"
+                        fullWidth
+                        disabled={scrapingLoading}
+                        sx={{ mt: 2 }}
+                    >
+                        {scrapingLoading ? <CircularProgress size={24} color="inherit" /> : 'Scrape'}
+                    </Button>
+                </Box>
+            </Modal>
 
-                <form onSubmit={handleSubmit}>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                        <div className="md:col-span-4">
-                            <TextAreaField
+            <Box
+                sx={{
+                    maxWidth: 800,
+                    mx: 'auto',
+                    bgcolor: 'background.paper',
+                    p: 4,
+                    borderRadius: 1,
+                    boxShadow: 2,
+                }}
+            >
+                <Button
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    onClick={() => setScrapeModalOpen(true)}
+                    sx={{ mb: 3 }}
+                >
+                    Scrape By URL
+                </Button>
+                <Typography variant="h4" component="h1" gutterBottom>
+                    Ad Copy Generator
+                </Typography>
+                <Box component="form" onSubmit={handleSubmit}>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <TextField
                                 label="Description"
                                 name="description"
                                 value={formData.description}
                                 onChange={handleChange}
                                 placeholder="Enter product description"
+                                fullWidth
+                                required
+                                multiline
+                                rows={4}
                             />
-                        </div>
-                        <InputField
-                            label="Image URL"
-                            name="image"
-                            value={formData.image}
-                            onChange={handleChange}
-                            placeholder="Enter image URL"
-                        />
-                        <InputField
-                            label="Affiliate link"
-                            name="affiliateLink"
-                            value={formData.affiliateLink}
-                            onChange={handleChange}
-                            placeholder="Enter affiliate link"
-                        />
-                        <InputField
-                            label="Price"
-                            name="price"
-                            value={formData.price}
-                            onChange={handleChange}
-                            placeholder="Enter price"
-                        />
-                        <InputField
-                            label="Original Price"
-                            name="originalPrice"
-                            value={formData.originalPrice}
-                            onChange={handleChange}
-                            placeholder="Enter original price"
-                        />
-                        <InputField
-                            label="Discount"
-                            name="discount"
-                            value={formData.discount}
-                            onChange={handleChange}
-                            placeholder="Enter discount percentage"
-                        />
-                        <InputField
-                            label="Stars"
-                            name="stars"
-                            value={formData.stars}
-                            onChange={handleChange}
-                            placeholder="Enter star rating"
-                        />
-                        <InputField
-                            label="Number of Reviews"
-                            name="numberOfReviews"
-                            value={formData.numberOfReviews}
-                            onChange={handleChange}
-                            placeholder="Enter number of reviews"
-                        />
-                        <InputField
-                            label="Number of Orders"
-                            name="numberOfOrders"
-                            value={formData.numberOfOrders}
-                            onChange={handleChange}
-                            placeholder="Enter number of orders"
-                        />
-                        <InputField
-                            label="Shipment Price"
-                            name="shipmentPrice"
-                            value={formData.shipmentPrice}
-                            onChange={handleChange}
-                            placeholder="Enter shipment price"
-                        />
-                        <InputField
-                            label="Shipment Estimate"
-                            name="shipmentEstimate"
-                            value={formData.shipmentEstimate}
-                            onChange={handleChange}
-                            placeholder="Enter shipment estimate"
-                        />
-                        <InputField
-                            label="Brand"
-                            name="brand"
-                            value={formData.brand}
-                            onChange={handleChange}
-                            placeholder="Enter brand name"
-                        />
-                    </div>
-                    <div className="mt-6 w-full">
-                        <Button className="w-full" size="large" type="submit" isLoading={generatingLoading}>
-                            Generate Ad Copy
-                        </Button>
-                    </div>
-                </form>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <FormControl fullWidth required>
+                                <InputLabel>Category</InputLabel>
+                                <Select
+                                    label="Category"
+                                    name="category"
+                                    value={formData.category}
+                                    onChange={handleCategoryChange}
+                                >
+                                    {categoryOptions.map((option) => (
+                                        <MenuItem key={option.value} value={option.value}>
+                                            {option.label}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        {/* Rest of the input fields */}
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                label="Image URL"
+                                name="image"
+                                value={formData.image}
+                                onChange={handleChange}
+                                placeholder="Enter image URL"
+                                fullWidth
+                                required
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                label="Affiliate Link"
+                                name="affiliateLink"
+                                value={formData.affiliateLink}
+                                onChange={handleChange}
+                                placeholder="Enter affiliate link"
+                                fullWidth
+                                required
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                label="Price"
+                                name="price"
+                                value={formData.price}
+                                onChange={handleChange}
+                                placeholder="Enter price"
+                                fullWidth
+                                required
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                label="Original Price"
+                                name="originalPrice"
+                                value={formData.originalPrice}
+                                onChange={handleChange}
+                                placeholder="Enter original price"
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                label="Discount"
+                                name="discount"
+                                value={formData.discount}
+                                onChange={handleChange}
+                                placeholder="Enter discount percentage"
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                label="Stars"
+                                name="stars"
+                                value={formData.stars}
+                                onChange={handleChange}
+                                placeholder="Enter star rating"
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                label="Number of Reviews"
+                                name="numberOfReviews"
+                                value={formData.numberOfReviews}
+                                onChange={handleChange}
+                                placeholder="Enter number of reviews"
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                label="Number of Orders"
+                                name="numberOfOrders"
+                                onChange={handleChange}
+                                value={formData.numberOfOrders}
+                                placeholder="Enter number of orders"
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                label="Shipment Price"
+                                name="shipmentPrice"
+                                value={formData.shipmentPrice}
+                                onChange={handleChange}
+                                placeholder="Enter shipment price"
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                label="Shipment Estimate"
+                                name="shipmentEstimate"
+                                value={formData.shipmentEstimate}
+                                onChange={handleChange}
+                                placeholder="Enter shipment estimate"
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                label="Brand"
+                                name="brand"
+                                value={formData.brand}
+                                onChange={handleChange}
+                                placeholder="Enter brand name"
+                                fullWidth
+                            />
+                        </Grid>
+                    </Grid>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        type="submit"
+                        fullWidth
+                        disabled={generatingLoading}
+                        sx={{ mt: 3 }}
+                    >
+                        {generatingLoading ? <CircularProgress size={24} color="inherit" /> : 'Generate Ad Copy'}
+                    </Button>
+                </Box>
 
                 {generatedTemplate && (
-                    <div className="mt-8">
-                        <h2 className="text-xl font-semibold mb-4">Generated Ad Copy:</h2>
+                    <Box sx={{ mt: 6 }}>
+                        <Typography variant="h5" gutterBottom>
+                            Generated Ad Copy:
+                        </Typography>
                         <AdCopyPreview
                             loading={saveLoading}
                             imageUrl={formData.image}
                             content={generatedTemplate}
                             onSave={() => handleSave(generatedTemplate)}
                             showSaveButton={true}
+                            date={new Date().toISOString()}
                         />
-                    </div>
+                    </Box>
                 )}
-            </div>
-        </div>
+            </Box>
+        </Box>
     )
 }
 

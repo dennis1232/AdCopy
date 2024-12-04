@@ -1,101 +1,89 @@
 // components/Navbar.tsx
 'use client'
 
+import React from 'react'
 import Link from 'next/link'
-import React, { useState } from 'react'
-import { FaBars, FaTimes } from 'react-icons/fa'
-import AvatarMenu from './AvatarMenu'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AppBar, Toolbar, IconButton, Typography, Button, Menu, MenuItem, useTheme, useMediaQuery } from '@mui/material'
+import { Menu as MenuIcon, Close as CloseIcon } from '@mui/icons-material'
+// import AvatarMenu from './AvatarMenu'
 
 const Navbar: React.FC = () => {
-    const [navOpen, setNavOpen] = useState(false)
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+    const theme = useTheme()
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
-    const toggleNav = () => {
-        setNavOpen(!navOpen)
+    const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget)
+    }
+
+    const handleClose = () => {
+        setAnchorEl(null)
     }
 
     return (
-        <nav className="bg-white border-b border-gray-200 fixed w-full z-20 top-0 left-0">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-16">
-                    {/* Logo */}
-                    <div className="flex-shrink-0">
-                        <Link href="/">
-                            <span className="text-2xl font-bold text-blue-600 hover:text-blue-800 cursor-pointer">
-                                AdCopyGen
-                            </span>
-                        </Link>
-                    </div>
+        <AppBar position="fixed" color="inherit" elevation={1}>
+            <Toolbar>
+                {/* Logo */}
+                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                    <Link href="/" passHref>
+                        <Button color="inherit" sx={{ textTransform: 'none', fontSize: '1.25rem' }}>
+                            AdCopyGen
+                        </Button>
+                    </Link>
+                </Typography>
 
-                    {/* Desktop Menu */}
-                    <div className="hidden md:flex items-center space-x-4">
-                        <Link href="/form">
-                            <span className="text-gray-800 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium cursor-pointer transition duration-200">
-                                Generate Ad Copy
-                            </span>
+                {/* Desktop Menu */}
+                {!isMobile && (
+                    <>
+                        <Link href="/form" passHref>
+                            <Button color="inherit">Generate Ad Copy</Button>
                         </Link>
-                        <Link href="/ad-copies">
-                            <span className="text-gray-800 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium cursor-pointer transition duration-200">
-                                Ad Copies
-                            </span>
+                        <Link href="/ad-copies" passHref>
+                            <Button color="inherit">Ad Copies</Button>
                         </Link>
                         {/* Additional Links */}
                         {/* <AvatarMenu /> */}
-                    </div>
-
-                    {/* Mobile Menu Button */}
-                    <div className="md:hidden flex items-center">
-                        <button
-                            onClick={toggleNav}
-                            type="button"
-                            className="inline-flex items-center justify-center p-2 rounded-md text-gray-800 hover:text-blue-600 focus:outline-none"
-                            aria-controls="mobile-menu"
-                            aria-expanded={navOpen}
-                        >
-                            <span className="sr-only">Open main menu</span>
-                            {navOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            {/* Mobile Menu with Animation */}
-            <AnimatePresence>
-                {navOpen && (
-                    <motion.div
-                        className="md:hidden"
-                        id="mobile-menu"
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                    >
-                        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                            <Link href="/form">
-                                <span
-                                    className="block text-gray-800 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium cursor-pointer transition duration-200"
-                                    onClick={toggleNav}
-                                >
-                                    Generate Ad Copy
-                                </span>
-                            </Link>
-                            <Link href="/ad-copies">
-                                <span
-                                    className="block text-gray-800 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium cursor-pointer transition duration-200"
-                                    onClick={toggleNav}
-                                >
-                                    Ad Copies
-                                </span>
-                            </Link>
-                            {/* Additional Links */}
-                            <div className="border-t border-gray-200 mt-2 pt-2">
-                                <AvatarMenu mobile toggleNav={toggleNav} />
-                            </div>
-                        </div>
-                    </motion.div>
+                    </>
                 )}
-            </AnimatePresence>
-        </nav>
+
+                {/* Mobile Menu Button */}
+                {isMobile && (
+                    <>
+                        <IconButton edge="end" color="inherit" aria-label="menu" onClick={handleMenu}>
+                            {anchorEl ? <CloseIcon /> : <MenuIcon />}
+                        </IconButton>
+                        <Menu
+                            anchorEl={anchorEl}
+                            open={Boolean(anchorEl)}
+                            onClose={handleClose}
+                            keepMounted
+                            PaperProps={{
+                                style: {
+                                    width: '200px',
+                                },
+                            }}
+                        >
+                            <MenuItem onClick={handleClose}>
+                                <Link href="/form" passHref>
+                                    <Button color="inherit" fullWidth>
+                                        Generate Ad Copy
+                                    </Button>
+                                </Link>
+                            </MenuItem>
+                            <MenuItem onClick={handleClose}>
+                                <Link href="/ad-copies" passHref>
+                                    <Button color="inherit" fullWidth>
+                                        Ad Copies
+                                    </Button>
+                                </Link>
+                            </MenuItem>
+                            {/* Additional Links */}
+                            {/* <AvatarMenu mobile toggleNav={handleClose} /> */}
+                        </Menu>
+                    </>
+                )}
+            </Toolbar>
+        </AppBar>
     )
 }
 

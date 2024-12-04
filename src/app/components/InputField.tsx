@@ -1,6 +1,8 @@
+// components/InputField.tsx
 'use client'
 
 import React from 'react'
+import TextField from '@mui/material/TextField'
 
 interface InputFieldProps {
     label: string
@@ -9,24 +11,44 @@ interface InputFieldProps {
     value: string | number
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
     placeholder?: string
+    fullWidth?: boolean
+    required?: boolean
+    disabled?: boolean
+    error?: boolean
+    helperText?: React.ReactNode
 }
 
-const InputField: React.FC<InputFieldProps> = ({ label, name, type = 'text', value, onChange, placeholder }) => {
+const InputField: React.FC<InputFieldProps> = ({
+    label,
+    name,
+    type = 'text',
+    value,
+    onChange,
+    placeholder,
+    fullWidth = true,
+    required = false,
+    disabled = false,
+    error = false,
+    helperText,
+    ...rest
+}) => {
     return (
-        <div className="mb-4">
-            <label className="block text-gray-700 font-semibold mb-1" htmlFor={name}>
-                {label}
-            </label>
-            <input
-                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                type={type}
-                id={name}
-                name={name}
-                value={value}
-                onChange={onChange}
-                placeholder={placeholder}
-            />
-        </div>
+        <TextField
+            label={label}
+            name={name}
+            type={type}
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            fullWidth={fullWidth}
+            required={required}
+            disabled={disabled}
+            error={error}
+            helperText={helperText}
+            variant="outlined"
+            margin="normal"
+            {...rest}
+        />
     )
 }
 
