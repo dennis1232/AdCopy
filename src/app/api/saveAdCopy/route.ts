@@ -15,9 +15,9 @@ export async function POST(req: NextRequest) {
         await dbConnect()
         if (adCopyId) {
             try {
-                const adCopy = AdCopy.findOneAndUpdate({ _id: adCopyId }, { content, imageUrl })
+                const adCopy = AdCopy.findOneAndUpdate({ _id: adCopyId }, { content })
                 return NextResponse.json({
-                    status: 'success',
+                    adCopy,
                 })
             } catch {
                 return NextResponse.json({
@@ -31,6 +31,7 @@ export async function POST(req: NextRequest) {
             content,
             imageUrl,
             date: new Date(),
+            category: formData.category,
         })
 
         await newAdCopy.save()

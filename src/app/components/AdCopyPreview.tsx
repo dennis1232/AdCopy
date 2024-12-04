@@ -2,25 +2,26 @@
 'use client'
 
 import React, { useState } from 'react'
-import Image from 'next/image'
 import ReactMarkdown from 'react-markdown'
 import rehypeSanitize from 'rehype-sanitize'
 import axios from 'axios'
-import Button from './Button'
 import { APIEndpoints, ToastMessages } from '@/utils/constants'
 import useToast from '@/hooks/useToast'
-import TextAreaField from './TextAreaField'
 import {
     Card,
     CardMedia,
     CardContent,
     CardActions,
     Typography,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions as MuiDialogActions,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    TextField,
+    CircularProgress,
 } from '@mui/material'
+import { Button } from '@/app/components'
+import { Edit, Save, Delete, Send } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
 
 interface AdCopyPreviewProps {
@@ -30,10 +31,16 @@ interface AdCopyPreviewProps {
     showSaveButton?: boolean
     date?: string
     loading?: boolean
-    onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
+    onChange?: (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => void
     onDelete?: () => void
     onEdit?: () => void
 }
+
+const channelOptions = [
+    { label: 'Wedding', value: 'wedding' },
+    { label: 'Tennis', value: 'tennis' },
+    // Add more channels as needed
+]
 
 const AdCopyPreview: React.FC<AdCopyPreviewProps> = ({
     imageUrl,
@@ -46,46 +53,50 @@ const AdCopyPreview: React.FC<AdCopyPreviewProps> = ({
     loading = false,
 }) => {
     const [sendLoading, setSendLoading] = useState<boolean>(false)
+    const [selectedChannel, setSelectedChannel] = useState<string>(channelOptions[0].value)
     const { showSuccess, showError } = useToast()
     const [isEdit, setIsEdit] = useState<boolean>(false)
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
     const theme = useTheme()
-    // const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
-    const onSend = async () => {
+    const handleSend = async () => {
         setSendLoading(true)
         try {
-            await axios.post(APIEndpoints.sendToTelegram, { imageUrl, message: content, channel: 'wedding' })
+            await axios.post(APIEndpoints.sendToTelegram, {
+                imageUrl,
+                message: content,
+                channel: selectedChannel,
+            })
             showSuccess(ToastMessages.adCopySentToTelegram)
         } catch {
             showError(ToastMessages.adCopySentToChannelFailed)
+        } finally {
+            setSendLoading(false)
         }
-        setSendLoading(false)
+    }
+
+    const toggleEdit = (e: React.MouseEvent) => {
+        e.stopPropagation()
+        setIsEdit((prev) => !prev)
+        if (isEdit && onEdit) onEdit()
     }
 
     return (
         <>
             <Card
-                className="bg-white border border-gray-200 rounded-lg shadow-sm mb-6 cursor-pointer"
-                // onClick={() => setIsModalOpen(true)}
                 sx={{
                     '&:hover': {
                         boxShadow: theme.shadows[4],
                     },
+                    position: 'relative',
                 }}
             >
+                {/* Image */}
                 {imageUrl && (
-                    <CardMedia
-                        component="img"
-                        image={imageUrl}
-                        alt="Product Image"
-                        sx={{
-                            objectFit: 'object-fit',
-                        }}
-                    />
+                    <CardMedia component="img" image={imageUrl} alt="Product Image" sx={{ objectFit: 'cover' }} />
                 )}
+
+                {/* Content */}
                 <CardContent
-                    className="text-right"
                     dir="rtl"
                     sx={{
                         paddingTop: theme.spacing(2),
@@ -102,17 +113,19 @@ const AdCopyPreview: React.FC<AdCopyPreviewProps> = ({
                         </Typography>
                     )}
                     {onChange && isEdit ? (
-                        <TextAreaField
+                        <TextField
+                            multiline
                             rows={6}
                             onChange={onChange}
                             value={content}
                             label="Edit Content"
+                            variant="outlined"
+                            fullWidth
                             name="editable-content"
                         />
                     ) : (
                         <Typography
                             variant="body1"
-                            component="div"
                             sx={{
                                 fontSize: { xs: '0.9rem', sm: '1rem' },
                                 color: 'text.primary',
@@ -122,87 +135,104 @@ const AdCopyPreview: React.FC<AdCopyPreviewProps> = ({
                         </Typography>
                     )}
                 </CardContent>
+
+                {/* Actions */}
                 <CardActions
                     sx={{
                         justifyContent: 'space-between',
+                        flexWrap: 'wrap',
+                        gap: 2,
+                        padding: theme.spacing(1),
                     }}
                 >
+                    {/* Left Actions */}
                     {onSave && (
-                        <Button variant="outlined" onClick={onSave} isLoading={loading}>
+                        <Button
+                            fullWidth
+                            variant="outlined"
+                            onClick={onSave}
+                            startIcon={<Save />}
+                            isLoading={loading}
+                            sx={{ marginRight: theme.spacing(1), position: 'relative' }}
+                        >
                             Save
                         </Button>
                     )}
                     {onEdit && (
                         <Button
+                            fullWidth
                             variant="outlined"
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                setIsEdit(!isEdit)
-                                if (isEdit && onEdit) onEdit()
-                            }}
+                            onClick={toggleEdit}
                             isLoading={loading}
+                            startIcon={isEdit ? <Save /> : <Edit />}
+                            sx={{ marginRight: theme.spacing(1), position: 'relative' }}
                         >
                             {isEdit ? 'Save Edit' : 'Edit'}
                         </Button>
                     )}
-                    <Button
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            onSend()
-                        }}
-                        isLoading={sendLoading}
-                    >
-                        Send to Channel
-                    </Button>
                     {!onSave && onDelete && (
                         <Button
+                            fullWidth
                             variant="contained"
-                            sx={{ backgroundColor: 'red' }}
+                            color="error"
                             onClick={(e) => {
                                 e.stopPropagation()
                                 onDelete()
                             }}
                             isLoading={loading}
+                            startIcon={<Delete />}
+                            sx={{ position: 'relative' }}
                         >
                             Delete
                         </Button>
                     )}
+
+                    <FormControl variant="outlined" size="small" sx={{ marginRight: theme.spacing(1) }}>
+                        <InputLabel>Channel</InputLabel>
+                        <Select
+                            sx={{ width: '100%' }}
+                            label="Channel"
+                            value={selectedChannel}
+                            onChange={(e) => setSelectedChannel(e.target.value)}
+                        >
+                            {channelOptions.map((option) => (
+                                <MenuItem key={option.value} value={option.value}>
+                                    {option.label}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    {/* Send Button */}
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        fullWidth
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            handleSend()
+                        }}
+                        disabled={sendLoading}
+                        startIcon={<Send />}
+                        sx={{ position: 'relative' }}
+                    >
+                        Send
+                        {sendLoading && (
+                            <CircularProgress
+                                size={24}
+                                sx={{
+                                    color: theme.palette.primary.contrastText,
+                                    position: 'absolute',
+                                    top: '50%',
+                                    left: '50%',
+                                    marginTop: '-12px',
+                                    marginLeft: '-12px',
+                                }}
+                            />
+                        )}
+                    </Button>
                 </CardActions>
             </Card>
-
-            {/* Detailed Preview Modal */}
-            <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} fullWidth maxWidth="md">
-                <DialogTitle>Ad Copy Details</DialogTitle>
-                <DialogContent dividers>
-                    {imageUrl && (
-                        <Image
-                            src={imageUrl}
-                            alt="Product Image"
-                            width={500}
-                            height={500}
-                            className="object-cover rounded-lg mb-4 w-full"
-                        />
-                    )}
-                    <Typography
-                        variant="body1"
-                        component="div"
-                        sx={{
-                            fontSize: { xs: '0.9rem', sm: '1rem', direction: 'rtl' },
-                            color: 'text.primary',
-                        }}
-                    >
-                        <ReactMarkdown rehypePlugins={[rehypeSanitize]}>{content}</ReactMarkdown>
-                    </Typography>
-                    {date && (
-                        <Typography variant="caption" color="textSecondary" sx={{ marginTop: theme.spacing(2) }}>
-                            נוצר בתאריך: {new Date(date).toLocaleString('he-IL')}
-                        </Typography>
-                    )}
-                </DialogContent>
-                <MuiDialogActions>
-                    <Button onClick={() => setIsModalOpen(false)}>Close</Button>
-                </MuiDialogActions>
-            </Dialog>
         </>
     )
 }

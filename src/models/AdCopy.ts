@@ -5,8 +5,6 @@ export interface IAdCopy extends Document {
     imageUrl: string
     date: Date
     category: string
-    tags: string[]
-    channel: string
 }
 
 const AdCopySchema: Schema = new Schema({
@@ -14,7 +12,6 @@ const AdCopySchema: Schema = new Schema({
     imageUrl: { type: String },
     date: { type: Date, default: Date.now },
     category: { type: String, required: true },
-    channel: { type: String },
 })
 
 // Indexes

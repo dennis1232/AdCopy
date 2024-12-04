@@ -1,9 +1,10 @@
 // pages/AdCopiesPage.tsx
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import axios from 'axios'
 import AdCopyPreview from '../components/AdCopyPreview'
+
 import useToast from '@/hooks/useToast'
 import { APIEndpoints, ToastMessages } from '@/utils/constants'
 import { Container, Typography, Grid, CircularProgress, Box, Button } from '@mui/material'
@@ -21,7 +22,6 @@ const categoryOptions: CategoryOption[] = [
     { label: 'All Categories', value: '' },
     { label: 'Wedding', value: 'wedding' },
     { label: 'Tennis', value: 'tennis' },
-    // Add more categories as needed
 ]
 
 const AdCopiesPage: React.FC = () => {
@@ -32,35 +32,25 @@ const AdCopiesPage: React.FC = () => {
 
     const [searchText, setSearchText] = useState<string>('')
     const [selectedCategory, setSelectedCategory] = useState<string>('')
-    const [startDate, setStartDate] = useState<Date | null>(null)
-    const [endDate, setEndDate] = useState<Date | null>(null)
 
     const { showSuccess, showError } = useToast()
 
-    const fetchAdCopies = async () => {
+    const fetchAdCopies = useCallback(async () => {
         try {
             setIsLoadingAdCopies(true)
             const response = await axios.get(APIEndpoints.fetchAdCopies)
-            setAdCopies(response.data.adCopies)
+            setAdCopies(response.data)
             setIsLoadingAdCopies(false)
         } catch (error) {
             console.error('Error fetching ad copies:', error)
             showError(ToastMessages.fetchAdCopiesFailed)
             setIsLoadingAdCopies(false)
         }
-    }
+    }, [showError])
 
-    useEffect(() => {
-        fetchAdCopies()
-    }, [])
-
-    // Filter ad copies whenever filters change
-    useEffect(() => {
-        applyFilters()
-    }, [searchText, selectedCategory, startDate, endDate, adCopies])
-
-    const applyFilters = () => {
+    const applyFilters = useCallback(() => {
         if (!adCopies) return
+
         let filtered = adCopies
 
         // Filter by search text
@@ -74,18 +64,19 @@ const AdCopiesPage: React.FC = () => {
             filtered = filtered.filter((ad) => ad.category === selectedCategory)
         }
 
-        // Filter by date range
-        if (startDate) {
-            filtered = filtered.filter((ad) => new Date(ad.date) >= startDate)
-        }
-        if (endDate) {
-            filtered = filtered.filter((ad) => new Date(ad.date) <= endDate)
-        }
-
         setFilteredAdCopies(filtered)
-    }
+    }, [adCopies, searchText, selectedCategory])
 
-    const updateAdCopyContent = (e: React.ChangeEvent<HTMLTextAreaElement>, adCopyId: string) => {
+    useEffect(() => {
+        fetchAdCopies()
+    }, [])
+
+    // Filter ad copies whenever filters change
+    useEffect(() => {
+        applyFilters()
+    }, [searchText, selectedCategory, adCopies])
+
+    const updateAdCopyContent = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, adCopyId: string) => {
         const newContent = e.target.value
         setAdCopies((prevAdCopies) =>
             prevAdCopies.map((ad) => (ad._id === adCopyId ? { ...ad, content: newContent } : ad))
@@ -131,8 +122,6 @@ const AdCopiesPage: React.FC = () => {
     const clearFilters = () => {
         setSearchText('')
         setSelectedCategory('')
-        setStartDate(null)
-        setEndDate(null)
     }
 
     if (loadingAdCopies) {
@@ -170,7 +159,7 @@ const AdCopiesPage: React.FC = () => {
                                 imageUrl={adCopy.imageUrl}
                                 content={adCopy.content}
                                 onEdit={() => handleSaveEditedCopy(adCopy._id)}
-                                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                                onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) =>
                                     updateAdCopyContent(e, adCopy._id)
                                 }
                                 onDelete={() => onDeleteAdCopy(adCopy._id)}
@@ -181,17 +170,21 @@ const AdCopiesPage: React.FC = () => {
                     ))}
                 </Grid>
             ) : (
-                <Box sx={{ mt: 12, textAlign: 'center' }}>
-                    <Typography variant="h6" color="textSecondary">
-                        No ad copies found.
-                    </Typography>
-                    <Button variant="contained" color="primary" sx={{ mt: 2 }} href="/form">
-                        Generate Ad Copy
-                    </Button>
-                </Box>
+                <NoCopies />
             )}
         </Container>
     )
 }
 
-export default AdCopiesPage
+const NoCopies = () => (
+    <Box sx={{ mt: 12, textAlign: 'center' }}>
+        <Typography variant="h6" color="textSecondary">
+            No ad copies found.
+        </Typography>
+        <Button variant="contained" color="primary" sx={{ mt: 2 }} href="/form">
+            Generate Ad Copy
+        </Button>
+    </Box>
+)
+
+export default React.memo(AdCopiesPage)

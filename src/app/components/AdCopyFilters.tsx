@@ -85,7 +85,7 @@ const AdCopyFilters: React.FC<AdCopyFiltersProps> = ({
                 </FormControl>
 
                 {/* Clear Filters Button */}
-                <Button variant="contained" onClick={clearFilters} sx={{ whiteSpace: 'wrap' }}>
+                <Button variant="contained" onClick={clearFilters}>
                     Clear Filters
                 </Button>
             </Stack>
