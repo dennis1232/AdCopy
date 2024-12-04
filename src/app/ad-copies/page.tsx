@@ -6,30 +6,42 @@ import axios from 'axios'
 import AdCopyPreview from '../components/AdCopyPreview'
 import useToast from '@/hooks/useToast'
 import { APIEndpoints, ToastMessages } from '@/utils/constants'
-import { Container, Typography, Grid, CircularProgress, Box } from '@mui/material'
-// import { useTheme } from '@mui/material/styles'
-
+import { Container, Typography, Grid, CircularProgress, Box, Button } from '@mui/material'
+import { CategoryOption } from '@/types'
+import AdCopyFilters from '@/app/components/AdCopyFilters'
 interface AdCopy {
     _id: string
     content: string
     imageUrl: string
     date: string
+    category: string
 }
+
+const categoryOptions: CategoryOption[] = [
+    { label: 'All Categories', value: '' },
+    { label: 'Wedding', value: 'wedding' },
+    { label: 'Tennis', value: 'tennis' },
+    // Add more categories as needed
+]
 
 const AdCopiesPage: React.FC = () => {
     const [adCopies, setAdCopies] = useState<AdCopy[]>([])
+    const [filteredAdCopies, setFilteredAdCopies] = useState<AdCopy[]>([])
     const [loadingAdCopies, setIsLoadingAdCopies] = useState<boolean>(true)
     const [actionLoading, setActionLoading] = useState<{ [key: string]: boolean }>({})
 
+    const [searchText, setSearchText] = useState<string>('')
+    const [selectedCategory, setSelectedCategory] = useState<string>('')
+    const [startDate, setStartDate] = useState<Date | null>(null)
+    const [endDate, setEndDate] = useState<Date | null>(null)
+
     const { showSuccess, showError } = useToast()
-    // const theme = useTheme()
-    // const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
     const fetchAdCopies = async () => {
         try {
             setIsLoadingAdCopies(true)
             const response = await axios.get(APIEndpoints.fetchAdCopies)
-            setAdCopies(response.data)
+            setAdCopies(response.data.adCopies)
             setIsLoadingAdCopies(false)
         } catch (error) {
             console.error('Error fetching ad copies:', error)
@@ -41,6 +53,37 @@ const AdCopiesPage: React.FC = () => {
     useEffect(() => {
         fetchAdCopies()
     }, [])
+
+    // Filter ad copies whenever filters change
+    useEffect(() => {
+        applyFilters()
+    }, [searchText, selectedCategory, startDate, endDate, adCopies])
+
+    const applyFilters = () => {
+        if (!adCopies) return
+        let filtered = adCopies
+
+        // Filter by search text
+        if (searchText.trim()) {
+            const searchLower = searchText.trim().toLowerCase()
+            filtered = filtered.filter((ad) => ad.content.toLowerCase().includes(searchLower))
+        }
+
+        // Filter by category
+        if (selectedCategory) {
+            filtered = filtered.filter((ad) => ad.category === selectedCategory)
+        }
+
+        // Filter by date range
+        if (startDate) {
+            filtered = filtered.filter((ad) => new Date(ad.date) >= startDate)
+        }
+        if (endDate) {
+            filtered = filtered.filter((ad) => new Date(ad.date) <= endDate)
+        }
+
+        setFilteredAdCopies(filtered)
+    }
 
     const updateAdCopyContent = (e: React.ChangeEvent<HTMLTextAreaElement>, adCopyId: string) => {
         const newContent = e.target.value
@@ -85,28 +128,43 @@ const AdCopiesPage: React.FC = () => {
         }
     }
 
+    const clearFilters = () => {
+        setSearchText('')
+        setSelectedCategory('')
+        setStartDate(null)
+        setEndDate(null)
+    }
+
     if (loadingAdCopies) {
         return (
-            <Box className="min-h-screen flex items-center justify-center">
+            <Box sx={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <CircularProgress />
             </Box>
         )
     }
 
     return (
-        <Container maxWidth="lg" className="min-h-screen bg-gray-50 py-8">
+        <Container maxWidth="lg" sx={{ minHeight: '80vh', py: 8 }}>
             <Typography
                 variant="h4"
                 component="h1"
                 gutterBottom
-                className="text-center"
-                sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}
+                sx={{ textAlign: 'center', fontSize: { xs: '1.5rem', sm: '2rem' } }}
             >
                 Your Ad Copies
             </Typography>
-            {adCopies.length > 0 ? (
-                <Grid container spacing={4}>
-                    {adCopies.map((adCopy) => (
+            {/* Filter Form */}
+            <AdCopyFilters
+                searchText={searchText}
+                setSearchText={setSearchText}
+                selectedCategory={selectedCategory}
+                setSelectedCategory={setSelectedCategory}
+                categoryOptions={categoryOptions}
+                clearFilters={clearFilters}
+            />
+            {filteredAdCopies.length > 0 ? (
+                <Grid container spacing={2}>
+                    {filteredAdCopies.map((adCopy) => (
                         <Grid item xs={12} sm={6} md={4} key={adCopy._id}>
                             <AdCopyPreview
                                 imageUrl={adCopy.imageUrl}
@@ -123,10 +181,13 @@ const AdCopiesPage: React.FC = () => {
                     ))}
                 </Grid>
             ) : (
-                <Box className="mt-12 text-center">
+                <Box sx={{ mt: 12, textAlign: 'center' }}>
                     <Typography variant="h6" color="textSecondary">
-                        You have not generated any ad copies yet.
+                        No ad copies found.
                     </Typography>
+                    <Button variant="contained" color="primary" sx={{ mt: 2 }} href="/form">
+                        Generate Ad Copy
+                    </Button>
                 </Box>
             )}
         </Container>

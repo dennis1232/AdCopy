@@ -7,8 +7,8 @@ import { FormData } from '@/types'
 
 export async function POST(req: NextRequest) {
     try {
-        const { formData, channel } = await req.json()
-        const botChannel = channel as BotChannelVariant
+        const { formData } = await req.json()
+        const botChannel = formData.category as BotChannelVariant
 
         if (!adTemplateMap[botChannel]) {
             return NextResponse.json({ error: 'Invalid channel' }, { status: 400 })

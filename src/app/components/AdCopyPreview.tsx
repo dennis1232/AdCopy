@@ -80,8 +80,7 @@ const AdCopyPreview: React.FC<AdCopyPreviewProps> = ({
                         image={imageUrl}
                         alt="Product Image"
                         sx={{
-                            height: { xs: 200, sm: 250, md: 300 },
-                            objectFit: 'cover',
+                            objectFit: 'object-fit',
                         }}
                     />
                 )}
