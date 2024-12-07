@@ -16,7 +16,7 @@ interface AvatarMenuProps {
 
 const AvatarMenu: React.FC<AvatarMenuProps> = ({ mobile = false, toggleNav }) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-    const { data: session, status } = useSession()
+    const { data: session } = useSession()
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget)
