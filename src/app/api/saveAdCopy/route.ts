@@ -5,7 +5,7 @@ import dbConnect from '@/lib/dbConnect'
 import AdCopy, { IAdCopy } from '@/models/AdCopy'
 
 export async function POST(req: NextRequest) {
-    const { content, formData, imageUrl, adCopyId } = await req.json()
+    const { content, formData, adCopyId } = await req.json()
 
     if (!content) {
         return NextResponse.json({ error: 'Failed to save adCopy' }, { status: 500 })
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
         // Save the ad copy to MongoDB
         const newAdCopy: IAdCopy = new AdCopy({
             content,
-            imageUrl,
+            imageUrl: formData.image,
             date: new Date(),
             category: formData.category,
         })
@@ -42,6 +42,6 @@ export async function POST(req: NextRequest) {
         })
     } catch (error) {
         console.error('Error generating ad copy:', error)
-        return NextResponse.json({ error: 'Failed to generate ad copy' }, { status: 500 })
+        return NextResponse.json({ error: 'Failed to save ad copy' }, { status: 500 })
     }
 }

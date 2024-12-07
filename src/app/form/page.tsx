@@ -73,12 +73,13 @@ const Form: React.FC = () => {
     }
 
     const handleSave = async (generatedContent: string) => {
+        console.log(generatedContent)
+
         setSaveLoading(true)
         try {
             await axios.post(APIEndpoints.saveAdCopy, {
                 content: generatedContent,
-                imageUrl: formData.image,
-                category: formData.category,
+                formData,
             })
             showSuccess(ToastMessages.adCopySaved)
         } catch {

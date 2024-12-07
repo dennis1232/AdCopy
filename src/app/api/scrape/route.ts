@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
     const numberOfOrders = $('span.reviewer--sold--ytPeoEy')?.text().trim()
     const shipmentPrice = $('.dynamic-shipping-titleLayout strong')?.text().trim()
     const shipmentEstimate = $('.dynamic-shipping-contentLayout strong')?.text().trim()
-    const image = $('img.magnifier--image--EYYoSlr').attr('src')
+    const image = $('.slider--img--K0YbWW2 img').attr('src')?.split('_')[0]
 
     await browser.close()
     return Response.json({

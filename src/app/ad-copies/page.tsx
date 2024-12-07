@@ -1,15 +1,14 @@
-// pages/AdCopiesPage.tsx
 'use client'
 
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState, useMemo } from 'react'
 import axios from 'axios'
 import AdCopyPreview from '../components/AdCopyPreview'
-
 import useToast from '@/hooks/useToast'
 import { APIEndpoints, ToastMessages } from '@/utils/constants'
 import { Container, Typography, Grid, CircularProgress, Box, Button } from '@mui/material'
-import { CategoryOption } from '@/types'
 import AdCopyFilters from '@/app/components/AdCopyFilters'
+import { IAdCopy } from '@/models/AdCopy'
+
 interface AdCopy {
     _id: string
     content: string
@@ -18,7 +17,7 @@ interface AdCopy {
     category: string
 }
 
-const categoryOptions: CategoryOption[] = [
+const categoryOptions = [
     { label: 'All Categories', value: '' },
     { label: 'Wedding', value: 'wedding' },
     { label: 'Tennis', value: 'tennis' },
@@ -26,8 +25,7 @@ const categoryOptions: CategoryOption[] = [
 
 const AdCopiesPage: React.FC = () => {
     const [adCopies, setAdCopies] = useState<AdCopy[]>([])
-    const [filteredAdCopies, setFilteredAdCopies] = useState<AdCopy[]>([])
-    const [loadingAdCopies, setIsLoadingAdCopies] = useState<boolean>(true)
+    const [loadingAdCopies, setLoadingAdCopies] = useState<boolean>(true)
     const [actionLoading, setActionLoading] = useState<{ [key: string]: boolean }>({})
 
     const [searchText, setSearchText] = useState<string>('')
@@ -37,53 +35,32 @@ const AdCopiesPage: React.FC = () => {
 
     const fetchAdCopies = useCallback(async () => {
         try {
-            setIsLoadingAdCopies(true)
-            const response = await axios.get(APIEndpoints.fetchAdCopies)
-            setAdCopies(response.data)
-            setIsLoadingAdCopies(false)
+            setLoadingAdCopies(true)
+            const { data } = await axios.get(APIEndpoints.fetchAdCopies)
+            setAdCopies(data)
         } catch (error) {
             console.error('Error fetching ad copies:', error)
             showError(ToastMessages.fetchAdCopiesFailed)
-            setIsLoadingAdCopies(false)
+        } finally {
+            setLoadingAdCopies(false)
         }
     }, [showError])
-
-    const applyFilters = useCallback(() => {
-        if (!adCopies) return
-
-        let filtered = adCopies
-
-        // Filter by search text
-        if (searchText.trim()) {
-            const searchLower = searchText.trim().toLowerCase()
-            filtered = filtered.filter((ad) => ad.content.toLowerCase().includes(searchLower))
-        }
-
-        // Filter by category
-        if (selectedCategory) {
-            filtered = filtered.filter((ad) => ad.category === selectedCategory)
-        }
-
-        setFilteredAdCopies(filtered)
-    }, [adCopies, searchText, selectedCategory])
 
     useEffect(() => {
         fetchAdCopies()
     }, [])
 
-    // Filter ad copies whenever filters change
-    useEffect(() => {
-        applyFilters()
-    }, [searchText, selectedCategory, adCopies])
+    const filteredAdCopies = useMemo(() => {
+        return adCopies.filter((ad) => {
+            const matchesSearch = searchText.trim()
+                ? ad.content.toLowerCase().includes(searchText.trim().toLowerCase())
+                : true
+            const matchesCategory = selectedCategory ? ad.category === selectedCategory : true
+            return matchesSearch && matchesCategory
+        })
+    }, [adCopies, searchText, selectedCategory])
 
-    const updateAdCopyContent = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, adCopyId: string) => {
-        const newContent = e.target.value
-        setAdCopies((prevAdCopies) =>
-            prevAdCopies.map((ad) => (ad._id === adCopyId ? { ...ad, content: newContent } : ad))
-        )
-    }
-
-    const handleSaveEditedCopy = async (adCopyId: string) => {
+    const handleSaveEditedCopy = async (adCopyId: string, content: IAdCopy['content']) => {
         const adCopy = adCopies.find((ad) => ad._id === adCopyId)
         if (!adCopy) {
             showError(ToastMessages.adCopyNotFound)
@@ -92,15 +69,15 @@ const AdCopiesPage: React.FC = () => {
 
         try {
             setActionLoading((prev) => ({ ...prev, [adCopyId]: true }))
-            await axios.post(APIEndpoints.saveAdCopy, {
-                ...adCopy,
-            })
-
+            await axios.post(APIEndpoints.saveAdCopy, { content: content || adCopy.content, adCopyId })
+            setAdCopies((prev) =>
+                prev.map((ad) => (ad._id === adCopyId ? { ...ad, content: content || adCopy.content } : ad))
+            )
             showSuccess(ToastMessages.adCopySaved)
-            setActionLoading((prev) => ({ ...prev, [adCopyId]: false }))
         } catch (error) {
             console.error('Error saving ad copy:', error)
             showError(ToastMessages.adCopySaveFailed)
+        } finally {
             setActionLoading((prev) => ({ ...prev, [adCopyId]: false }))
         }
     }
@@ -109,12 +86,12 @@ const AdCopiesPage: React.FC = () => {
         try {
             setActionLoading((prev) => ({ ...prev, [id]: true }))
             await axios.post(APIEndpoints.deleteAdCopy, { adCopyId: id })
-            setAdCopies((prevAdCopies) => prevAdCopies.filter((ad) => ad._id !== id))
+            setAdCopies((prev) => prev.filter((ad) => ad._id !== id))
             showSuccess(ToastMessages.adCopyRemoved)
-            setActionLoading((prev) => ({ ...prev, [id]: false }))
         } catch (error) {
             console.error('Error deleting ad copy:', error)
             showError(ToastMessages.adCopyRemovedFailed)
+        } finally {
             setActionLoading((prev) => ({ ...prev, [id]: false }))
         }
     }
@@ -134,15 +111,9 @@ const AdCopiesPage: React.FC = () => {
 
     return (
         <Container maxWidth="lg" sx={{ minHeight: '80vh', py: 8 }}>
-            <Typography
-                variant="h4"
-                component="h1"
-                gutterBottom
-                sx={{ textAlign: 'center', fontSize: { xs: '1.5rem', sm: '2rem' } }}
-            >
+            <Typography variant="h4" component="h1" gutterBottom sx={{ textAlign: 'center' }}>
                 Your Ad Copies
             </Typography>
-            {/* Filter Form */}
             <AdCopyFilters
                 searchText={searchText}
                 setSearchText={setSearchText}
@@ -158,10 +129,7 @@ const AdCopiesPage: React.FC = () => {
                             <AdCopyPreview
                                 imageUrl={adCopy.imageUrl}
                                 content={adCopy.content}
-                                onEdit={() => handleSaveEditedCopy(adCopy._id)}
-                                onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) =>
-                                    updateAdCopyContent(e, adCopy._id)
-                                }
+                                onEdit={(content) => handleSaveEditedCopy(adCopy._id, content)}
                                 onDelete={() => onDeleteAdCopy(adCopy._id)}
                                 date={adCopy.date}
                                 loading={actionLoading[adCopy._id] || false}
@@ -170,19 +138,23 @@ const AdCopiesPage: React.FC = () => {
                     ))}
                 </Grid>
             ) : (
-                <NoCopies />
+                <EmptyState message="No ad copies found." actionHref="/form" actionLabel="Generate Ad Copy" />
             )}
         </Container>
     )
 }
 
-const NoCopies = () => (
+const EmptyState: React.FC<{ message: string; actionHref: string; actionLabel: string }> = ({
+    message,
+    actionHref,
+    actionLabel,
+}) => (
     <Box sx={{ mt: 12, textAlign: 'center' }}>
         <Typography variant="h6" color="textSecondary">
-            No ad copies found.
+            {message}
         </Typography>
-        <Button variant="contained" color="primary" sx={{ mt: 2 }} href="/form">
-            Generate Ad Copy
+        <Button variant="contained" color="primary" sx={{ mt: 2 }} href={actionHref}>
+            {actionLabel}
         </Button>
     </Box>
 )
