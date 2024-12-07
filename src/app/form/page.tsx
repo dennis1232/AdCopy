@@ -7,7 +7,9 @@ import axios from 'axios'
 import AdCopyPreview from '@/app/components/AdCopyPreview'
 import useToast from '@/hooks/useToast'
 import { ToastMessages, APIEndpoints } from '@/utils/constants'
-import { CategoryOption, FormData } from '@/types'
+import { FormData } from '@/types'
+import { CHANNEL_OPTIONS, channelSelectionMap } from '@/lib/adTemplates'
+
 import ScrapeModal from '@/app/components/ScrapeModal'
 import FormFields from '@/app/components/FormFields'
 import { SelectChangeEvent } from '@mui/material'
@@ -28,15 +30,11 @@ const initialFormData: FormData = {
     category: '',
 }
 
-const categoryOptions: CategoryOption[] = [
-    { label: 'Wedding', value: 'wedding' },
-    { label: 'Tennis', value: 'tennis' },
-]
-
 const Form: React.FC = () => {
     const [formData, setFormData] = useState<FormData>(initialFormData)
     const [scrapeInput, setScrapeInput] = useState<string>('')
     const [generatedTemplate, setGeneratedTemplate] = useState<string>('')
+
     const [generatingLoading, setGeneratingLoading] = useState<boolean>(false)
     const [saveLoading, setSaveLoading] = useState<boolean>(false)
     const [scrapingLoading, setScrapingLoading] = useState<boolean>(false)
@@ -60,7 +58,7 @@ const Form: React.FC = () => {
         try {
             const response = await axios.post(APIEndpoints.generateAdCopy, {
                 formData,
-                channel: formData.category,
+                category: formData.category,
             })
             showSuccess(ToastMessages.adCopyGenerated)
             setGeneratedTemplate(response.data.result)
@@ -73,8 +71,6 @@ const Form: React.FC = () => {
     }
 
     const handleSave = async (generatedContent: string) => {
-        console.log(generatedContent)
-
         setSaveLoading(true)
         try {
             await axios.post(APIEndpoints.saveAdCopy, {
@@ -141,7 +137,7 @@ const Form: React.FC = () => {
                     Ad Copy Generator
                 </Typography>
                 <Box component="form" onSubmit={handleSubmit}>
-                    <FormFields formData={formData} handleChange={handleChange} categoryOptions={categoryOptions} />
+                    <FormFields formData={formData} handleChange={handleChange} categoryOptions={CHANNEL_OPTIONS} />
                     <Button
                         variant="contained"
                         color="primary"

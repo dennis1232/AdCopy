@@ -8,6 +8,7 @@ import { APIEndpoints, ToastMessages } from '@/utils/constants'
 import { Container, Typography, Grid, CircularProgress, Box, Button } from '@mui/material'
 import AdCopyFilters from '@/app/components/AdCopyFilters'
 import { IAdCopy } from '@/models/AdCopy'
+import { CHANNEL_OPTIONS } from '@/lib/adTemplates'
 
 interface AdCopy {
     _id: string
@@ -16,12 +17,6 @@ interface AdCopy {
     date: string
     category: string
 }
-
-const categoryOptions = [
-    { label: 'All Categories', value: '' },
-    { label: 'Wedding', value: 'wedding' },
-    { label: 'Tennis', value: 'tennis' },
-]
 
 const AdCopiesPage: React.FC = () => {
     const [adCopies, setAdCopies] = useState<AdCopy[]>([])
@@ -119,7 +114,7 @@ const AdCopiesPage: React.FC = () => {
                 setSearchText={setSearchText}
                 selectedCategory={selectedCategory}
                 setSelectedCategory={setSelectedCategory}
-                categoryOptions={categoryOptions}
+                categoryOptions={CHANNEL_OPTIONS}
                 clearFilters={clearFilters}
             />
             {filteredAdCopies.length > 0 ? (

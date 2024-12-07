@@ -10,7 +10,6 @@ import {
     Card,
     CardMedia,
     CardContent,
-    CardActions,
     Typography,
     FormControl,
     InputLabel,
@@ -23,6 +22,7 @@ import { Button } from '@/app/components'
 import { Edit, Save, Delete, Send } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
 import { IAdCopy } from '@/models/AdCopy'
+import { CHANNEL_OPTIONS } from '@/lib/adTemplates'
 
 interface AdCopyPreviewProps {
     imageUrl?: string
@@ -35,12 +35,6 @@ interface AdCopyPreviewProps {
     onEdit?: (content: IAdCopy['content']) => void
 }
 
-const channelOptions = [
-    { label: 'Wedding', value: 'wedding' },
-    { label: 'Tennis', value: 'tennis' },
-    // Add more channels as needed
-]
-
 const AdCopyPreview: React.FC<AdCopyPreviewProps> = ({
     imageUrl,
     content,
@@ -51,7 +45,7 @@ const AdCopyPreview: React.FC<AdCopyPreviewProps> = ({
     loading = false,
 }) => {
     const [sendLoading, setSendLoading] = useState<boolean>(false)
-    const [selectedChannel, setSelectedChannel] = useState<string>(channelOptions[0].value)
+    const [selectedChannel, setSelectedChannel] = useState<string>(CHANNEL_OPTIONS[0].value)
     const { showSuccess, showError } = useToast()
     const [isEdit, setIsEdit] = useState<boolean>(false)
     const [editedAdCopy, setEditedAdCopy] = useState<IAdCopy['content']>('')
@@ -178,7 +172,7 @@ const AdCopyPreview: React.FC<AdCopyPreviewProps> = ({
                             value={selectedChannel}
                             onChange={(e) => setSelectedChannel(e.target.value)}
                         >
-                            {channelOptions.map((option) => (
+                            {CHANNEL_OPTIONS.map((option) => (
                                 <MenuItem key={option.value} value={option.value}>
                                     {option.label}
                                 </MenuItem>
