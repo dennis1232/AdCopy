@@ -3,13 +3,12 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import axios from 'axios'
+import { BotChannelVariant } from '@/lib/adTemplates'
 
 interface BotChannelConfig {
     botToken: string | undefined // Tokens are read from environment variables and can be undefined
     channelId: string | undefined // Same as above
 }
-
-export type BotChannelVariant = 'tennis' | 'wedding' | 'test'
 
 const botChannelMap: Record<BotChannelVariant, BotChannelConfig> = {
     tennis: {
@@ -20,9 +19,13 @@ const botChannelMap: Record<BotChannelVariant, BotChannelConfig> = {
         botToken: process.env.TELEGRAM_WEDDING_BOT_TOKEN,
         channelId: process.env.TELEGRAM_WEDDING_CHANNEL_ID,
     },
-    test: {
-        botToken: process.env.TELEGRAM_TENNIS_BOT_TOKEN,
-        channelId: process.env.TELEGRAM_TENNIS_CHANNEL_ID,
+    guitarParts: {
+        botToken: process.env.TELEGRAM_WEDDING_BOT_TOKEN,
+        channelId: process.env.TELEGRAM_WEDDING_CHANNEL_ID,
+    },
+    favors: {
+        botToken: process.env.TELEGRAM_WEDDING_BOT_TOKEN,
+        channelId: process.env.TELEGRAM_WEDDING_CHANNEL_ID,
     },
 }
 
@@ -35,7 +38,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Get bot token and channel ID based on the variant
-        const config = botChannelMap[channel as BotChannelVariant] || botChannelMap.test
+        const config = botChannelMap[channel as BotChannelVariant]
 
         if (!config.botToken || !config.channelId) {
             return NextResponse.json({ error: 'Invalid configuration for the selected variant' }, { status: 500 })

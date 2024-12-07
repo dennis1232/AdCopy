@@ -105,8 +105,12 @@ const AdCopiesPage: React.FC = () => {
     }
 
     return (
-        <Container maxWidth="lg" sx={{ minHeight: '80vh', py: 8 }}>
-            <Typography variant="h4" component="h1" gutterBottom sx={{ textAlign: 'center' }}>
+        <Container maxWidth="lg" sx={{ py: 8, bgcolor: 'background.default', minHeight: '80vh' }}>
+            <Typography
+                variant="h4"
+                component="h1"
+                sx={{ fontWeight: 700, textAlign: 'center', mb: 4, color: 'text.primary' }}
+            >
                 Your Ad Copies
             </Typography>
             <AdCopyFilters
@@ -118,7 +122,7 @@ const AdCopiesPage: React.FC = () => {
                 clearFilters={clearFilters}
             />
             {filteredAdCopies.length > 0 ? (
-                <Grid container spacing={2}>
+                <Grid container spacing={3}>
                     {filteredAdCopies.map((adCopy) => (
                         <Grid item xs={12} sm={6} md={4} key={adCopy._id}>
                             <AdCopyPreview
@@ -144,11 +148,22 @@ const EmptyState: React.FC<{ message: string; actionHref: string; actionLabel: s
     actionHref,
     actionLabel,
 }) => (
-    <Box sx={{ mt: 12, textAlign: 'center' }}>
-        <Typography variant="h6" color="textSecondary">
+    <Box
+        sx={{
+            mt: 8,
+            textAlign: 'center',
+            borderRadius: 2,
+            py: 6,
+            px: 3,
+            bgcolor: 'background.paper',
+            border: '2px dashed',
+            borderColor: 'divider',
+        }}
+    >
+        <Typography variant="h6" sx={{ color: 'text.secondary', mb: 2 }}>
             {message}
         </Typography>
-        <Button variant="contained" color="primary" sx={{ mt: 2 }} href={actionHref}>
+        <Button variant="contained" color="primary" href={actionHref}>
             {actionLabel}
         </Button>
     </Box>

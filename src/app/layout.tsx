@@ -15,7 +15,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 {/* <SessionProvider> */}
                 <ThemeRegistry>
                     <Navbar />
-                    <main className="mt-16">{children}</main>
+                    <main>{children}</main>
                     <Toaster />
                 </ThemeRegistry>
                 {/* </SessionProvider> */}

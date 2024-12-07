@@ -7,35 +7,39 @@ import { styled } from '@mui/material/styles'
 import { motion } from 'framer-motion'
 
 const HeroSection = styled(Box)(({ theme }) => ({
-    backgroundColor: theme.palette.primary.light,
+    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.light})`,
     color: theme.palette.primary.contrastText,
-    padding: theme.spacing(8, 2),
+    padding: theme.spacing(12, 2),
     textAlign: 'center',
+    position: 'relative',
+    overflow: 'hidden',
 }))
 
 const FeatureSection = styled(Box)(({ theme }) => ({
     padding: theme.spacing(8, 2),
+    backgroundColor: theme.palette.background.default,
 }))
 
 const SampleAdSection = styled(Box)(({ theme }) => ({
-    backgroundColor: theme.palette.background.default,
+    backgroundColor: theme.palette.background.paper,
     padding: theme.spacing(8, 2),
+    color: theme.palette.text.primary,
 }))
 
 const features = [
     {
         title: 'Easy to Use',
-        description: 'Generate engaging ad copies with a simple and intuitive interface.',
+        description: 'Generate engaging ad copies effortlessly with a user-friendly interface.',
         image: '/images/easy_to_use.webp',
     },
     {
         title: 'Customizable Templates',
-        description: 'Choose from various templates tailored to your industry.',
+        description: 'Access templates tailored to your business needs.',
         image: '/images/customizable_templates.webp',
     },
     {
         title: 'Save & Manage',
-        description: 'Save your ad copies and manage them in one place.',
+        description: 'Save and organize your ad copies in a centralized dashboard.',
         image: '/images/save_manage.webp',
     },
 ]
@@ -43,15 +47,15 @@ const features = [
 const sampleAds = [
     {
         image: '/images/sample_ad_1.webp',
-        content: 'Discover the ultimate wedding accessory to make your special day unforgettable!',
+        content: '✨ Discover the ultimate wedding accessory for your special day!',
     },
     {
         image: '/images/sample_ad_2.webp',
-        content: 'Enhance your tennis game with our top-of-the-line equipment!',
+        content: '🎾 Boost your game with premium tennis equipment!',
     },
     {
         image: '/images/sample_ad_3.webp',
-        content: 'Experience luxury and comfort with our premium brand offerings.',
+        content: '🌟 Elevate your lifestyle with our premium brand offerings.',
     },
 ]
 
@@ -61,23 +65,59 @@ export default function HomePage() {
             {/* Hero Section */}
             <HeroSection>
                 <Container maxWidth="md">
-                    <Typography variant="h2" component="h1" gutterBottom sx={{ fontWeight: 'bold' }}>
-                        Welcome to Ad Copy Generator
-                    </Typography>
-                    <Typography variant="h5" component="p" gutterBottom>
-                        Create engaging ad copies effortlessly.
-                    </Typography>
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 1 }}
+                    >
+                        <Typography
+                            variant="h2"
+                            component="h1"
+                            gutterBottom
+                            sx={{
+                                fontWeight: 700,
+                                fontSize: { xs: '2rem', sm: '3rem' },
+                                fontFamily: 'Inter, sans-serif',
+                            }}
+                        >
+                            Welcome to Ad Copy Generator
+                        </Typography>
+                    </motion.div>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 1.5 }}
+                    >
+                        <Typography
+                            variant="body1"
+                            component="p"
+                            gutterBottom
+                            sx={{
+                                fontSize: { xs: '1rem', sm: '1.25rem' },
+                                color: (theme) => theme.palette.text.primary,
+                            }}
+                        >
+                            Simplify your ad creation process with powerful tools and templates.
+                        </Typography>
+                    </motion.div>
                     <Box sx={{ mt: 4 }}>
-                        <Link href="/form" passHref>
-                            <Button variant="contained" color="primary" size="large" sx={{ mr: 2 }}>
-                                Generate Ad Copy
-                            </Button>
-                        </Link>
-                        <Link href="/ad-copies" passHref>
-                            <Button variant="contained" color="primary" size="large">
-                                View Ad Copies
-                            </Button>
-                        </Link>
+                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                            <Link href="/form" passHref>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    size="large"
+                                    sx={{
+                                        mr: 2,
+                                        px: 4,
+                                        fontSize: '1rem',
+                                        borderRadius: '8px',
+                                    }}
+                                >
+                                    Get Started
+                                </Button>
+                            </Link>
+                        </motion.div>
                     </Box>
                 </Container>
             </HeroSection>
@@ -85,30 +125,48 @@ export default function HomePage() {
             {/* Feature Section */}
             <FeatureSection>
                 <Container maxWidth="lg">
-                    <Typography variant="h4" component="h2" align="center" gutterBottom>
+                    <Typography
+                        variant="h4"
+                        component="h2"
+                        align="center"
+                        gutterBottom
+                        sx={{ fontWeight: 600, fontFamily: 'Inter, sans-serif' }}
+                    >
                         How It Works
-                    </Typography>
-                    <Typography variant="subtitle1" align="center" gutterBottom>
-                        Generate professional ad copies in just a few steps.
                     </Typography>
                     <Grid container spacing={4} sx={{ mt: 4 }}>
                         {features.map((feature, index) => (
-                            <Grid item xs={12} sm={4} key={index}>
-                                <Box sx={{ textAlign: 'center' }}>
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 20 }}
-                                        whileInView={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.5, delay: index * 0.2 }}
+                            <Grid item xs={12} sm={6} md={4} key={index}>
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ duration: 0.5, delay: index * 0.2 }}
+                                >
+                                    <Card
+                                        sx={{
+                                            backgroundColor: (theme) => theme.palette.background.paper,
+                                            borderRadius: '12px',
+                                            overflow: 'hidden',
+                                            boxShadow: '0px 4px 10px rgba(0,0,0,0.1)',
+                                        }}
                                     >
-                                        <img src={feature.image} alt={feature.title} style={{ width: 'object-fit' }} />
-                                        <Typography variant="h6" component="h3" sx={{ mt: 2 }}>
-                                            {feature.title}
-                                        </Typography>
-                                        <Typography variant="body1" color="textSecondary" sx={{ mt: 1 }}>
-                                            {feature.description}
-                                        </Typography>
-                                    </motion.div>
-                                </Box>
+                                        <CardMedia
+                                            component="img"
+                                            image={feature.image}
+                                            alt={feature.title}
+                                            sx={{ height: 150, objectFit: 'cover' }}
+                                        />
+                                        <CardContent>
+                                            <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
+                                                {feature.title}
+                                            </Typography>
+                                            <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary' }}>
+                                                {feature.description}
+                                            </Typography>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
                             </Grid>
                         ))}
                     </Grid>
@@ -118,29 +176,42 @@ export default function HomePage() {
             {/* Sample Ad Copies Section */}
             <SampleAdSection>
                 <Container maxWidth="lg">
-                    <Typography variant="h4" component="h2" align="center" gutterBottom>
+                    <Typography
+                        variant="h4"
+                        component="h2"
+                        align="center"
+                        gutterBottom
+                        sx={{ fontWeight: 600, fontFamily: 'Inter, sans-serif' }}
+                    >
                         Sample Ad Copies
-                    </Typography>
-                    <Typography variant="subtitle1" align="center" gutterBottom>
-                        See what you can create with our generator.
                     </Typography>
                     <Grid container spacing={4} sx={{ mt: 4 }}>
                         {sampleAds.map((ad, index) => (
-                            <Grid item xs={12} sm={4} key={index}>
+                            <Grid item xs={12} sm={6} md={4} key={index}>
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.9 }}
                                     whileInView={{ opacity: 1, scale: 1 }}
+                                    viewport={{ once: true }}
                                     transition={{ duration: 0.5, delay: index * 0.2 }}
                                 >
-                                    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                                    <Card
+                                        sx={{
+                                            backgroundColor: (theme) => theme.palette.background.paper,
+                                            borderRadius: '12px',
+                                            overflow: 'hidden',
+                                            boxShadow: '0px 4px 10px rgba(0,0,0,0.1)',
+                                        }}
+                                    >
                                         <CardMedia
                                             component="img"
                                             image={ad.image}
-                                            alt="Sample Ad"
-                                            sx={{ height: 200, objectFit: 'cover' }}
+                                            alt={ad.content}
+                                            sx={{ height: 150, objectFit: 'cover' }}
                                         />
                                         <CardContent>
-                                            <Typography variant="body1">{ad.content}</Typography>
+                                            <Typography variant="body1" sx={{ fontWeight: 500, color: 'text.primary' }}>
+                                                {ad.content}
+                                            </Typography>
                                         </CardContent>
                                     </Card>
                                 </motion.div>
@@ -149,20 +220,6 @@ export default function HomePage() {
                     </Grid>
                 </Container>
             </SampleAdSection>
-
-            {/* Call to Action */}
-            <Box sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', py: 6, textAlign: 'center' }}>
-                <Container maxWidth="md">
-                    <Typography variant="h4" component="h2" gutterBottom>
-                        Ready to Create Your Ad Copy?
-                    </Typography>
-                    <Link href="/form" passHref>
-                        <Button variant="contained" color="secondary" size="large">
-                            Get Started
-                        </Button>
-                    </Link>
-                </Container>
-            </Box>
         </>
     )
 }

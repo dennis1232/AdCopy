@@ -10,7 +10,7 @@ interface FormFieldsProps {
 
 const FormFields: React.FC<FormFieldsProps> = ({ formData, handleChange, categoryOptions }) => {
     return (
-        <Box component="form" noValidate autoComplete="off">
+        <>
             <TextField
                 label="Description"
                 name="description"
@@ -23,7 +23,7 @@ const FormFields: React.FC<FormFieldsProps> = ({ formData, handleChange, categor
                 sx={{ mb: 2 }}
             />
 
-            <FormControl fullWidth sx={{ mb: 2 }} required>
+            <FormControl fullWidth sx={{ mb: 2 }}>
                 <InputLabel>Category</InputLabel>
                 <Select label="Category" name="category" value={formData.category || ''} onChange={handleChange}>
                     {categoryOptions.map((option) => (
@@ -176,7 +176,7 @@ const FormFields: React.FC<FormFieldsProps> = ({ formData, handleChange, categor
                     sx={{ flex: '1 1 200px' }}
                 />
             </Box>
-        </Box>
+        </>
     )
 }
 

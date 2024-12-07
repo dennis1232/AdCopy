@@ -1,4 +1,3 @@
-// app/components/Form.tsx
 'use client'
 
 import React, { useState } from 'react'
@@ -88,7 +87,7 @@ const Form: React.FC = () => {
         e.preventDefault()
         setScrapingLoading(true)
         try {
-            const res = await axios.post('/api/scrape', {
+            const res = await axios.post(APIEndpoints.scrape, {
                 productUrl: scrapeInput,
             })
             setFormData({ ...formData, ...res.data, affiliateLink: scrapeInput })
@@ -104,7 +103,6 @@ const Form: React.FC = () => {
 
     return (
         <Box sx={{ minHeight: '100vh', py: 4, bgcolor: 'background.default' }}>
-            {/* Scrape Modal */}
             <ScrapeModal
                 isOpen={scrapeModalOpen}
                 onClose={() => setScrapeModalOpen(false)}

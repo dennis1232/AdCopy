@@ -1,95 +1,103 @@
-// src/theme.ts
-import { createTheme } from '@mui/material/styles'
+// theme.ts
+import { createTheme, ThemeOptions } from '@mui/material/styles'
 
-// Define your custom colors
-const theme = createTheme({
+const themeOptions: ThemeOptions = {
     palette: {
         primary: {
-            main: '#1d4ed8', // Blue-700
-            light: '#3b82f6', // Blue-500
-            dark: '#1e40af', // Blue-800
-            contrastText: '#ffffff',
+            main: '#0D47A1', // Dark Blue
+            light: '#5472D3',
+            dark: '#002171',
+            contrastText: '#FFFFFF',
         },
         secondary: {
-            main: '#6b7280', // Gray-500
-            light: '#9ca3af', // Gray-400
-            dark: '#4b5563', // Gray-600
-            contrastText: '#ffffff',
-        },
-        error: {
-            main: '#dc2626', // Red-600
-            light: '#ef4444', // Red-500
-            dark: '#b91c1c', // Red-700
-            contrastText: '#ffffff',
-        },
-        warning: {
-            main: '#f59e0b', // Amber-500
-            contrastText: '#ffffff',
-        },
-        info: {
-            main: '#3b82f6', // Blue-500
-            contrastText: '#ffffff',
-        },
-        success: {
-            main: '#10b981', // Green-500
-            contrastText: '#ffffff',
+            main: '#29B6F6', // Light Blue
+            light: '#73E8FF',
+            dark: '#0086C3',
+            contrastText: '#FFFFFF',
         },
         background: {
-            default: '#f9fafb', // Gray-50
+            default: '#F5F7FA', // Light Gray Background
+            paper: '#FFFFFF', // White Cards
         },
         text: {
-            primary: '#111827', // Gray-900
-            secondary: '#6b7280', // Gray-500
+            primary: '#2C3E50', // Dark Text
+            secondary: '#7F8C8D', // Muted Text
+        },
+        error: {
+            main: '#E74C3C', // Error Red
+        },
+        success: {
+            main: '#2ECC71', // Success Green
+        },
+        warning: {
+            main: '#F39C12', // Warning Orange
         },
     },
     typography: {
-        fontFamily: ['"Inter"', 'Roboto', 'Arial', 'sans-serif'].join(','),
+        fontFamily: "'Inter', sans-serif", // Modern SaaS Font
         h1: {
-            fontSize: '2.25rem', // Tailwind's text-4xl
+            fontSize: '2.5rem',
             fontWeight: 700,
+            lineHeight: 1.2,
         },
         h2: {
-            fontSize: '1.875rem', // Tailwind's text-3xl
-            fontWeight: 700,
+            fontSize: '2rem',
+            fontWeight: 600,
+            lineHeight: 1.3,
         },
         h3: {
-            fontSize: '1.5rem', // Tailwind's text-2xl
-            fontWeight: 600,
+            fontSize: '1.75rem',
+            fontWeight: 500,
+            lineHeight: 1.4,
         },
         h4: {
-            fontSize: '1.25rem', // Tailwind's text-xl
-            fontWeight: 600,
-        },
-        h5: {
-            fontSize: '1.125rem', // Tailwind's text-lg
+            fontSize: '1.5rem',
             fontWeight: 500,
-        },
-        h6: {
-            fontSize: '1rem', // Tailwind's text-base
-            fontWeight: 500,
+            lineHeight: 1.5,
         },
         body1: {
-            fontSize: '1rem', // Tailwind's text-base
+            fontSize: '1rem',
+            lineHeight: 1.6,
         },
         body2: {
-            fontSize: '0.875rem', // Tailwind's text-sm
+            fontSize: '0.875rem',
+            lineHeight: 1.6,
         },
         button: {
-            textTransform: 'none', // Disable uppercase transformation
-            fontWeight: 500,
+            textTransform: 'none', // Keep buttons professional
+            fontWeight: 600,
         },
     },
     components: {
-        // Customize specific components if needed
         MuiButton: {
             styleOverrides: {
                 root: {
-                    borderRadius: '0.375rem', // Tailwind's rounded-md
-                    // Add other custom styles here
+                    borderRadius: '8px', // Slightly rounded buttons
+                    padding: '0.5rem 1.5rem',
+                },
+            },
+        },
+        MuiPaper: {
+            styleOverrides: {
+                root: {
+                    borderRadius: '12px', // Softer card edges
+                    boxShadow: '0px 2px 10px rgba(0,0,0,0.1)', // Subtle shadow
+                },
+            },
+        },
+        MuiContainer: {
+            styleOverrides: {
+                root: {
+                    padding: '24px', // Consistent container spacing
                 },
             },
         },
     },
-})
+    shape: {
+        borderRadius: 8,
+    },
+    spacing: 8,
+}
 
+const theme = createTheme(themeOptions)
 export default theme

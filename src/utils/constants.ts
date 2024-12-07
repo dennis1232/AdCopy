@@ -47,7 +47,7 @@ export const APIEndpoints = {
     fetchAdCopies: '/api/adCopies',
     manageChannels: '/api/channels',
     deleteAdCopy: '/api/deleteAdCopy',
-    scrapeProduct: '/api/scrapeProduct',
+    scrape: '/api/scrape',
     // Add more endpoints as needed
 }
 
