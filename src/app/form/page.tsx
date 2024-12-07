@@ -8,7 +8,7 @@ import AdCopyPreview from '@/app/components/AdCopyPreview'
 import useToast from '@/hooks/useToast'
 import { ToastMessages, APIEndpoints } from '@/utils/constants'
 import { FormData } from '@/types'
-import { CHANNEL_OPTIONS, channelSelectionMap } from '@/lib/adTemplates'
+import { CHANNEL_OPTIONS } from '@/lib/adTemplates'
 
 import ScrapeModal from '@/app/components/ScrapeModal'
 import FormFields from '@/app/components/FormFields'
