@@ -2,6 +2,7 @@ import { Toaster } from 'react-hot-toast'
 import Navbar from './components/NavBar'
 import './globals.css'
 import ThemeRegistry from '@/utils/ThemeRegistry'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import SessionProvider from './components/SessionProvider'
 import { Container } from '@mui/material'
 export const metadata = {
@@ -13,6 +14,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     return (
         <html lang="en">
             <body>
+                <SpeedInsights />
                 <SessionProvider>
                     <ThemeRegistry>
                         <Navbar />
