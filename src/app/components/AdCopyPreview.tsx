@@ -130,7 +130,7 @@ const AdCopyPreview: React.FC<AdCopyPreviewProps> = ({
                 )}
             </CardContent>
 
-            <CardActions
+            <Stack
                 sx={{
                     justifyContent: 'space-between',
                     flexWrap: 'wrap',
@@ -200,7 +200,7 @@ const AdCopyPreview: React.FC<AdCopyPreviewProps> = ({
                         Send
                     </Button>
                 </Stack>
-            </CardActions>
+            </Stack>
         </Card>
     )
 }
