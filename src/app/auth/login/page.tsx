@@ -20,6 +20,7 @@ const LoginPage: React.FC = () => {
             email,
             password,
         })
+        console.log(res)
 
         if (res && !res.error) {
             showSuccess('Logged in successfully!')

@@ -105,7 +105,7 @@ const AdCopiesPage: React.FC = () => {
     }
 
     return (
-        <Container maxWidth="lg" sx={{ py: 8, bgcolor: 'background.default', minHeight: '80vh' }}>
+        <Container maxWidth="lg" sx={{ bgcolor: 'background.default', minHeight: '80vh' }}>
             <Typography
                 variant="h4"
                 component="h1"

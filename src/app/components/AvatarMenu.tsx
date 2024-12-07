@@ -1,13 +1,11 @@
-// components/AvatarMenu.tsx
 'use client'
 
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState } from 'react'
 import { signIn, signOut } from 'next-auth/react'
 import { FaUserCircle } from 'react-icons/fa'
 import { MdKeyboardArrowDown } from 'react-icons/md'
 import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
-import Button from './Button'
+import { IconButton, Menu, MenuItem } from '@mui/material'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
 
@@ -17,117 +15,112 @@ interface AvatarMenuProps {
 }
 
 const AvatarMenu: React.FC<AvatarMenuProps> = ({ mobile = false, toggleNav }) => {
-    const [menuOpen, setMenuOpen] = useState(false)
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
     const { data: session, status } = useSession()
-    console.log(session, status)
 
-    const menuRef = useRef<HTMLDivElement>(null)
-
-    const toggleMenu = () => {
-        setMenuOpen(!menuOpen)
+    const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget)
     }
 
-    // Close the menu when clicking outside
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-                setMenuOpen(false)
-            }
-        }
-        document.addEventListener('mousedown', handleClickOutside)
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside)
-        }
-    }, [])
+    const handleMenuClose = () => {
+        setAnchorEl(null)
+        if (toggleNav) toggleNav()
+    }
 
     const handleSignOut = () => {
         signOut()
-        setMenuOpen(false)
-        if (toggleNav) toggleNav()
+        handleMenuClose()
     }
 
     const handleSignIn = () => {
         signIn()
-        setMenuOpen(false)
-        if (toggleNav) toggleNav()
+        handleMenuClose()
     }
 
     return (
-        <div className="relative inline-block text-left" ref={menuRef}>
-            <button onClick={toggleMenu} className="flex items-center space-x-1 focus:outline-none">
+        <div>
+            {/* Avatar Button */}
+            <IconButton
+                onClick={handleMenuOpen}
+                size="small"
+                aria-controls={anchorEl ? 'account-menu' : undefined}
+                aria-haspopup="true"
+                aria-expanded={Boolean(anchorEl)}
+                color="inherit"
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                }}
+            >
                 {session?.user?.image ? (
-                    <Image src={session.user.image} alt="User Avatar" width={32} height={32} className="rounded-full" />
-                ) : (
-                    <FaUserCircle size={24} className="text-gray-800 hover:text-blue-600 transition duration-200" />
-                )}
-                {!mobile && (
-                    <MdKeyboardArrowDown
-                        size={20}
-                        className="text-gray-800 hover:text-blue-600 transition duration-200"
+                    <Image
+                        src={session.user.image}
+                        alt="User Avatar"
+                        width={32}
+                        height={32}
+                        className="rounded-full"
+                        style={{ borderRadius: '50%', objectFit: 'cover' }}
                     />
+                ) : (
+                    <FaUserCircle size={28} />
                 )}
-            </button>
+                {!mobile && <MdKeyboardArrowDown size={20} />}
+            </IconButton>
 
-            {/* Dropdown Menu with Animation */}
-            <AnimatePresence>
-                {menuOpen && (
-                    <motion.div
-                        initial={{ opacity: 0.2, scaleY: 0.9, transformOrigin: 'top' }}
-                        animate={{ opacity: 1, scaleY: 1 }}
-                        exit={{ opacity: 0, scaleY: 0.9 }}
-                        transition={{ duration: 0.2 }}
-                        className={`origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none ${
-                            mobile ? 'relative' : ''
-                        }`}
-                    >
-                        <div className="py-1" role="menu" aria-orientation="vertical">
-                            {session ? (
-                                <>
-                                    <Link href="/profile">
-                                        <span
-                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer transition duration-200"
-                                            role="menuitem"
-                                            onClick={() => {
-                                                setMenuOpen(false)
-                                                if (mobile && toggleNav) toggleNav()
-                                            }}
-                                        >
-                                            Profile
-                                        </span>
-                                    </Link>
-                                    <Link href="/settings">
-                                        <span
-                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer transition duration-200"
-                                            role="menuitem"
-                                            onClick={() => {
-                                                setMenuOpen(false)
-                                                if (mobile && toggleNav) toggleNav()
-                                            }}
-                                        >
-                                            Settings
-                                        </span>
-                                    </Link>
-                                    <Button
-                                        onClick={handleSignOut}
-                                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-200"
-                                        role="menuitem"
-                                    >
-                                        Logout
-                                    </Button>
-                                </>
-                            ) : (
-                                <Button
-                                    onClick={handleSignIn}
-                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-200"
-                                    role="menuitem"
-                                >
-                                    Login
-                                </Button>
-                            )}
-                        </div>
-                    </motion.div>
+            {/* Dropdown Menu */}
+            <Menu
+                anchorEl={anchorEl}
+                id="account-menu"
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+                PaperProps={{
+                    elevation: 4,
+                    sx: {
+                        mt: 1.5,
+                        width: '200px',
+                        borderRadius: '12px',
+                        overflow: 'visible',
+                        boxShadow: '0px 8px 16px rgba(0,0,0,0.2)',
+                        '&::before': {
+                            content: '""',
+                            display: 'block',
+                            position: 'absolute',
+                            top: 0,
+                            right: 16,
+                            width: 12,
+                            height: 12,
+                            bgcolor: 'background.paper',
+                            transform: 'translateY(-50%) rotate(45deg)',
+                            zIndex: 0,
+                        },
+                    },
+                }}
+                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            >
+                {session ? (
+                    <>
+                        <MenuItem onClick={handleMenuClose}>
+                            <Link href="/profile">
+                                <span style={{ width: '100%' }}>Profile</span>
+                            </Link>
+                        </MenuItem>
+                        <MenuItem onClick={handleMenuClose}>
+                            <Link href="/settings">
+                                <span style={{ width: '100%' }}>Settings</span>
+                            </Link>
+                        </MenuItem>
+                        <MenuItem onClick={handleSignOut}>
+                            <span style={{ width: '100%' }}>Logout</span>
+                        </MenuItem>
+                    </>
+                ) : (
+                    <MenuItem onClick={handleSignIn}>
+                        <span style={{ width: '100%' }}>Login</span>
+                    </MenuItem>
                 )}
-            </AnimatePresence>
+            </Menu>
         </div>
     )
 }
