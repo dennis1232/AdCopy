@@ -31,7 +31,7 @@ interface AdTemplateConfig {
 }
 
 const generateAdTemplate = (formData: FormData, callToAction: string, telegramLink: string): string => `
-    Create an engaging and captivating ad copy in Hebrew for the following product, using HTML format, and include an HTML <a> tag for the affiliate link.
+    Create an engaging and captivating ad copy in Hebrew for the following product, using HTML format without html start, and include an HTML <a> tag for the affiliate link.
     Telegram supports a limited set of HTML tags: <b>, <strong>, <i>, <em>, <u>, <ins>, <s>, <strike>, <del>, <a>, <code>, <pre>.
     No ul or li tags; HTML tags outside this allowed set are not needed.
     Brand: ${formData.brand}
