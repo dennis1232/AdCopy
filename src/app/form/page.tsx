@@ -12,6 +12,7 @@ import { CHANNEL_OPTIONS } from '@/lib/adTemplates'
 import ScrapeModal from '@/app/components/ScrapeModal'
 import FormFields from '@/app/components/FormFields'
 import { SelectChangeEvent } from '@mui/material'
+import { handleScraping } from '@/utils/apify'
 
 const initialFormData: FormData = {
     description: '',
@@ -87,10 +88,13 @@ const Form: React.FC = () => {
         e.preventDefault()
         setScrapingLoading(true)
         try {
-            const res = await axios.post(APIEndpoints.scrape, {
-                productUrl: scrapeInput,
-            })
-            setFormData({ ...formData, ...res.data, affiliateLink: scrapeInput })
+            // const res = await axios.post(APIEndpoints.scrape, {
+            //     productUrl: scrapeInput,
+            // })
+            const res = await handleScraping(scrapeInput)
+            console.log(res)
+
+            // setFormData({ ...formData, ...res.data, affiliateLink: scrapeInput })
 
             showSuccess('Product data scraped successfully.')
         } catch (err) {

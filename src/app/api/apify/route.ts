@@ -1,32 +1,26 @@
-import chromium from '@sparticuz/chromium-min'
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { ApifyClient } from 'apify-client'
-
-chromium.setHeadlessMode = true
-chromium.setGraphicsMode = false
 
 const client = new ApifyClient({
     token: 'apify_api_WrCeq00Lyu6FhARgC95XHzs0DKBn7c1VnqGJ',
 })
 
 export async function POST(req: NextRequest) {
-    const { productUrl } = await req.json()
-    if (!productUrl) return
-    // Initialize the ApifyClient with API token
+    try {
+        const { productUrl } = await req.json()
+        if (!productUrl) {
+            return NextResponse.json({ error: 'productUrl is required' }, { status: 400 })
+        }
 
-    // Run the Actor task and wait for it to finish
-    const run = await client.task('hwAsFVZAaqFWvGZuG').call({
-        startUrls: [{ url: productUrl }],
-    })
+        // Initialize the ApifyClient and start the task
+        const run = await client.task('hwAsFVZAaqFWvGZuG').call({
+            startUrls: [{ url: productUrl }],
+        })
 
-    // Fetch and print Actor task results from the run's dataset (if any)
-    console.log('Results from dataset')
-    const { items } = await client.dataset(run.defaultDatasetId).listItems()
-    items.forEach((item) => {
-        console.dir(item)
-    })
-
-    return Response.json({
-        ...items['0'],
-    })
+        // Return the taskId to the client for polling
+        return NextResponse.json({ taskId: run.id })
+    } catch (error) {
+        console.error('Error starting task:', error)
+        return NextResponse.json({ error: 'Failed to start task' }, { status: 500 })
+    }
 }
