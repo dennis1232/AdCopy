@@ -16,15 +16,12 @@ const LoginPage: React.FC = () => {
         e.preventDefault()
 
         const res = await signIn('credentials', {
-            redirect: false,
             email,
             password,
         })
-        console.log(res)
 
         if (res && !res.error) {
             showSuccess('Logged in successfully!')
-            router.push('/') // Redirect to dashboard or desired page
         } else {
             showError(res?.error || 'An error occurred')
         }

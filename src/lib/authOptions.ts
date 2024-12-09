@@ -96,13 +96,8 @@ export const authOptions: NextAuthOptions = {
             return session
         },
 
-        async redirect({ url, baseUrl }) {
-            console.log('redirect', url, baseUrl)
-
-            if (url.startsWith(baseUrl)) {
-                return url // Allow redirect to the same domain
-            }
-            return baseUrl // Default to the base URL
+        async redirect({ baseUrl }) {
+            return baseUrl
         },
     },
     secret: process.env.NEXTAUTH_SECRET,
