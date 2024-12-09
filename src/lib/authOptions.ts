@@ -68,20 +68,6 @@ export const authOptions: NextAuthOptions = {
         strategy: 'jwt',
     },
     callbacks: {
-        async session({ session, token }) {
-            console.log('Session Callback:', { session, token })
-
-            // Attach token data to the session
-            if (token) {
-                session.user = {
-                    email: token.email,
-                    name: token.name,
-                }
-            }
-
-            return session
-        },
-
         async jwt({ token, user, account }) {
             console.log('JWT Callback:', { token, user, account })
             if (user) {
@@ -96,6 +82,20 @@ export const authOptions: NextAuthOptions = {
             }
             return token
         },
+        async session({ session, token }) {
+            console.log('Session Callback:', { session, token })
+
+            // Attach token data to the session
+            if (token) {
+                session.user = {
+                    email: token.email,
+                    name: token.name,
+                }
+            }
+
+            return session
+        },
+
         async redirect({ url, baseUrl }) {
             console.log('redirect', url, baseUrl)
 
