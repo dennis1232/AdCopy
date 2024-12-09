@@ -91,7 +91,7 @@ const Form: React.FC = () => {
             // const res = await axios.post(APIEndpoints.scrape, {
             //     productUrl: scrapeInput,
             // })
-            const res = await handleScraping(scrapeInput)
+            const res = handleScraping(scrapeInput)
             console.log(res)
 
             // setFormData({ ...formData, ...res.data, affiliateLink: scrapeInput })
