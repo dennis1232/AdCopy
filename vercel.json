@@ -1,6 +1,6 @@
 {
     "functions": {
-        "src/app/api/scrape/route.ts": {
+        "src/app/api/apify/route.ts": {
             "maxDuration": 60
         }
     }
