@@ -5,6 +5,8 @@ const client = new ApifyClient({
     token: 'apify_api_WrCeq00Lyu6FhARgC95XHzs0DKBn7c1VnqGJ',
 })
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(req: NextRequest) {
     try {
         const { searchParams } = new URL(req.url)
