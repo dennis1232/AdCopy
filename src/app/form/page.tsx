@@ -14,6 +14,25 @@ import FormFields from '@/app/components/FormFields'
 import { SelectChangeEvent } from '@mui/material'
 import { handleScraping } from '@/utils/apify'
 
+// Add interface for the scraped data structure
+interface ScrapedProduct {
+    url: string
+    pageTitle: string
+    h1: string
+    price: string
+    description: string
+    originalPrice: string
+    discount: string
+    stars: string
+    numberOfOrders: string
+    numberOfReviews: string
+    shipmentEstimate: string
+    shipmentPrice: string
+    image: string
+    first_h2: string
+    random_text_from_the_page: string
+}
+
 const initialFormData: FormData = {
     description: '',
     image: '',
@@ -88,13 +107,31 @@ const Form: React.FC = () => {
         e.preventDefault()
         setScrapingLoading(true)
         try {
-            // const res = await axios.post(APIEndpoints.scrape, {
-            //     productUrl: scrapeInput,
-            // })
-            const res = handleScraping(scrapeInput)
-            console.log(res)
+            const data = await handleScraping(scrapeInput)
 
-            // setFormData({ ...formData, ...res.data, affiliateLink: scrapeInput })
+            // Type guard to ensure data exists and has the correct shape
+            if (Array.isArray(data) && data.length > 0) {
+                const scrapedData = data[0] as ScrapedProduct
+
+                // Map scraped data to form data structure
+                setFormData((prev) => ({
+                    ...prev,
+                    description: scrapedData.description || '',
+                    image: scrapedData.image || '',
+                    price: scrapedData.price?.replace(/\$(\d+\.\d+)\$\d+\.\d+/, '$1') || '', // Clean up duplicated price
+                    stars: scrapedData.stars || '',
+                    numberOfReviews: scrapedData.numberOfReviews || '',
+                    numberOfOrders: scrapedData.numberOfOrders || '',
+                    shipmentPrice: scrapedData.shipmentPrice || '',
+                    shipmentEstimate: scrapedData.shipmentEstimate || '',
+                    discount: scrapedData.discount?.replace(/(\d+% off)\d+% off/, '$1') || '', // Clean up duplicated discount
+                    originalPrice: scrapedData.originalPrice?.replace(/\$(\d+\.\d+)\$\d+\.\d+/, '$1') || '', // Clean up duplicated price
+                    affiliateLink: scrapeInput,
+                    // Keep existing values for brand and category as they're not in scraped data
+                    brand: prev.brand,
+                    category: prev.category,
+                }))
+            }
 
             showSuccess('Product data scraped successfully.')
         } catch (err) {
