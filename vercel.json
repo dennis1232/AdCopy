@@ -2,6 +2,9 @@
     "functions": {
         "src/app/api/apify/route.ts": {
             "maxDuration": 60
+        },
+        "src/app/api/checkScrape/route.ts": {
+            "maxDuration": 60
         }
     }
 }
