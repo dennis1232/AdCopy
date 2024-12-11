@@ -1,6 +1,6 @@
 {
     "functions": {
-        "/src/api/scrape.ts": {
+        "src/api/scrape.ts": {
             "maxDuration": 60
         }
     }

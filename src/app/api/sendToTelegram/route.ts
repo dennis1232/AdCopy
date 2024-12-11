@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
 
         // Get bot token and channel ID based on the variant
         const config = botChannelMap[channel as BotChannelVariant]
+        console.log(config)
 
         if (!config.botToken || !config.channelId) {
             return NextResponse.json({ error: 'Invalid configuration for the selected variant' }, { status: 500 })
