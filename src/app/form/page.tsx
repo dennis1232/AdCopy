@@ -192,7 +192,7 @@ const Form: React.FC = () => {
                 {generatedTemplate && (
                     <Box sx={{ mt: 6 }}>
                         <Typography variant="h5" gutterBottom>
-                            Generated Ad Copy:
+                            Generated Ad Copy for eilam:
                         </Typography>
                         <AdCopyPreview
                             loading={saveLoading}
